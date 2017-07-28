@@ -1,4 +1,7 @@
 source('../../de_rnaseq.R')
+synapseLogin(rememberMe = T)
+syn.local   = "~/data/"
+
 #get combined.sf if not exist
 # change working directory to  201604_de/work/
 sf_files <- list.files(path="./",pattern='*\\.sf',recursive=T)

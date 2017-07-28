@@ -14,5 +14,5 @@ analysis:
 3. get TPM with get_tpm.R
 
 analysis variant calling:
-2. 201604_var.bash
-3. get results with 201604_get_var.R
+1. run bash commands in 201604_var.bash
+2. get results with 201604_get_var.R
