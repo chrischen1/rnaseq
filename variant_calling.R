@@ -76,3 +76,54 @@ vep_parser <- function(vep_folder,keep_types = c('frameshift_variant','inframe_d
   colnames(mut_mat) <- c('SAMPLE','SYMBOL','ENS_GENE','ENS_FEATURE','CONSEQUENCE','LOCATION','ALLELE','cDNA_POS','CDS_POS','PROT_POS','AMINO_ACID_CHANGE')
   return(mut_mat)
 }
+
+#'  get variation coverage from mutation results table, coverage is calculated for missense mutation only
+#'
+#' @param mut_mat mutation results table
+#' @return coverage matrix
+get_mut_coverage <- function(mut_mat){
+  mut_mat <- mut_mat[mut_mat$CONSEQUENCE=='missense_variant',]
+  all_mut <- list()
+  for(i in unique(mut_mat$SAMPLE)){
+    var_i <- mut_mat[mut_mat$SAMPLE==i,]
+    all_mut[[i]] <- unique(paste(var_i$SYMBOL,var_i$PROT_POS,var_i$AMINO_ACID_CHANGE,sep = '_'))
+  }
+  m <- matrix(0,nrow = length(all_mut),ncol = length(all_mut))
+  rownames(m) <- colnames(m) <- names(all_mut)
+  n <- names(all_mut)
+  for(a in 1:length(n)){
+    for(b in a:length(n)){
+      i=n[a]
+      j=n[b]
+      if(i==j){
+        m[i,j] <- 1
+      }else{
+        m[i,j] <- m[j,i]<- length(intersect(all_mut[[i]],all_mut[[j]]))/length(unique(c(all_mut[[i]],all_mut[[j]])))
+      }
+    }
+  }
+  return(m)
+}
+
+#'  merge msviper results
+#'
+#' @param result_path msviper results with entrzegene as regulon name
+#' @return merged msviper results
+merge_msviper_results <- function(result_path){
+  var_viper <- NULL
+  for(i in list.files(result_path)){
+    var_viper <- rbind(var_viper,read.csv(paste(result_path,i,sep = ''),as.is = T))
+  }
+  all_genes <- unique(var_viper$Regulon)
+  library(biomaRt)
+  ensembl <- useEnsembl(biomart="ensembl", dataset="hsapiens_gene_ensembl")
+  target_genes <- getBM(attributes=c('hgnc_symbol','entrezgene'),filters = 'entrezgene', values = all_genes, mart = ensembl)
+  target_genes <- target_genes[target_genes$hgnc_symbol!= '' & target_genes$entrezgene != '',]
+  genes <- target_genes$hgnc_symbol
+  names(genes) <- target_genes$entrezgene
+  xgenes <- as.character(all_genes[!(all_genes%in%target_genes$entrezgene)])
+  names(xgenes) <- xgenes
+  genes <- c(xgenes,genes)
+  var_viper$Regulon <- genes[as.character(var_viper$Regulon)]
+  return(var_viper[,-1])
+}

@@ -72,24 +72,19 @@ tpm2rpkm <- function(combined,tx2gene,spikes = NULL){
   return(rpkm_raw[-nrow(rpkm_raw),])
 }
 
-#' get TPM or counts from salmon output
+#' transform TPM to RPKM
 #'
 #' @param combined output file end with .combined from bcbio.
 #' @param tx2gene output file which maps ensumble ID to gene from bcbio.
 #' @param spikes a vector of string defining the name of spikes.
-#' @param count should the results use counts instead of TPM?
 #' @return p by n matrix for p genes across n samples
-sf2tpm <- function(combined,tx2gene,spikes = NULL,count=F){
+sf2tpm <- function(combined,tx2gene,spikes = NULL){
   gene_mapping <- cbind('transcript'= c(tx2gene$V1,spikes$GenBank),'gene' = c(tx2gene$V2,spikes$ERCC_ID))
   genes <- gene_mapping[,2]
   names(genes) <- gene_mapping[,1]
   combined$gene <- genes[combined$Name]
   combined2 <- combined[!is.na(combined[,'gene']),]
-  if(count){
-    tpm_combined <- data.frame('sample'=combined2$sample,'gene'=combined2$gene,'tpm_raw'=combined2$NumReads)
-  }else{
-    tpm_combined <- data.frame('sample'=combined2$sample,'gene'=combined2$gene,'tpm_raw'=combined2$TPM)
-  }
+  tpm_combined <- data.frame('sample'=combined2$sample,'gene'=combined2$gene,'tpm_raw'=combined2$TPM)
   tpm_combined_gene <- tpm_combined %>% group_by(sample,gene)%>% summarise_each(funs(sum))
   
   tpm_raw <- acast(tpm_combined_gene,gene~sample)
@@ -160,23 +155,6 @@ get_sample_csv <- function(sample_path){
   y=gsub('\\.fastq','',x)
   z=cbind('samplename'=y,'description'=y)
   write.csv(z,paste(sample_path,'samples.csv',sep = ''),row.names = F,quote = F)
-}
-
-#' generate combined salmon output file from bcbio
-#' 
-#' @param run_path path of bcbio /final folder
-#' @return a tab delimited file contain salmon output
-get_sf <- function(run_path='./'){
-  sf_files <- list.files(path=run_path,pattern='*\\.sf',recursive=T)
-  sf_info <- NULL
-  for(i in sf_files){
-    si <- read.delim(i,as.is = T)
-    si <- cbind(si,'sample'=gsub('salmon/(.+)/quant/.+','\\1',i),'id'=si$Name)
-    sf_info <- rbind(sf_info,si)
-  }
-  sf <- sf_info
-  colnames(sf) <- c('name','length','effectiveLength','tpm','numreads','sample','id')
-  write.table(sf,'combined.sf',sep='\t')
 }
 
 #' wrapper for getting fold change, pvalue and FDR, by per cell line per time point
