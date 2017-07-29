@@ -115,6 +115,6 @@ logFC_ens_final <- cbind(logFC_ens_mcf7[genes_intersect,],logFC_raw[genes_inters
 pval_ens_final <- cbind(pval_ens_mcf7[genes_intersect,],pval_raw[genes_intersect,])
 fdr_ens_final <- cbind(fdr_ens_mcf7[genes_intersect,],fdr_raw[genes_intersect,])
 
-write.csv(logFC_ens_final,'LogFC_pertubation.csv')
-write.csv(pval_ens_final,'pvalue_pertubation.csv')
-write.csv(fdr_ens_final,'FDR_pertubation.csv')
+write.csv(logFC_ens_final,'LogFC_perturbation.csv')
+write.csv(pval_ens_final,'pvalue_perturbation.csv')
+write.csv(fdr_ens_final,'FDR_perturbation.csv')
