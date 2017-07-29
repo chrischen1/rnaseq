@@ -28,26 +28,15 @@ sample_info <- read.delim(resolve.filename('syn10084520',syn.local = syn.local),
 samples <- sample_info$cellines
 rep_tag <- sample_info$rep_tag
 names(samples) <- names(rep_tag) <- sample_info$sample_id
-colnames(rpkm) <- gsub('.bio.replic','',colnames(rpkm),fixed = T)
-colnames(rpkm) <- gsub('.tech.replic','',colnames(rpkm),fixed = T)
-rep_tag_insert <- rep_tag[gsub('X','',colnames(rpkm))]
-colnames(rpkm) <- samples[gsub('X','',colnames(rpkm))]
+colnames(rpkm) <- gsub('-bio-replic','',colnames(rpkm),fixed = T)
+colnames(rpkm) <- gsub('-tech-replic','',colnames(rpkm),fixed = T)
+colnames(rpkm) <- samples[colnames(rpkm)]
 
 genes <- ens2symbol(rownames(rpkm))
 genes <- genes[genes$hgnc_symbol!='' & !(genes$ensembl_gene_id %in% genes$ensembl_gene_id[duplicated(genes$ensembl_gene_id)]) & 
                  !(genes$hgnc_symbol %in% genes$hgnc_symbol[duplicated(genes$hgnc_symbol)]),]
 gene_name <- genes$hgnc_symbol
 names(gene_name) <- genes$ensembl_gene_id
-rpkm_symbol <- rpkm[rownames(rpkm)%in%names(gene_name),]
-rownames(rpkm_symbol) <- gene_name[rownames(rpkm_symbol)]
-
-rpkm_ens <- rbind(rpkm,rep_tag_insert)
-rpkm_ens <- rbind(rpkm_ens[nrow(rpkm_ens),],rpkm_ens[-nrow(rpkm_ens),])
-rownames(rpkm_ens)[1] <- 'rep_tag'
-
-rpkm_symbol <- rbind(rpkm_symbol,rep_tag_insert)
-rpkm_symbol <- rbind(rpkm_symbol[nrow(rpkm_symbol),],rpkm_symbol[-nrow(rpkm_symbol),])
-rownames(rpkm_symbol)[1] <- 'rep_tag'
 
 #merge replicates
 rpkm_merge_rep <- NULL
@@ -65,5 +54,8 @@ rpkm_merge_rep <- t(rpkm_merge_rep)
 rpkm_merge_rep_symbol <- rpkm_merge_rep[rownames(rpkm_merge_rep)%in%names(gene_name),]
 rownames(rpkm_merge_rep_symbol) <- gene_name[rownames(rpkm_merge_rep_symbol)]
 
-write.table(rpkm_merge_rep,'./rpkm_basal_merge_rep_ens.tsv',sep = '\t')
-write.table(rpkm_merge_rep_symbol,'./RNAseq-rpkm.tsv',sep = '\t')
+rpkm_merge_rep_final <- cbind('id'=rownames(rpkm_merge_rep),log2(rpkm_merge_rep+1))
+rpkm_merge_rep_symbol_final <- cbind('id'=rownames(rpkm_merge_rep_symbol),log2(rpkm_merge_rep_symbol+1))
+
+write.table(rpkm_merge_rep_final,'./rpkm_basal_merge_rep_ens.tsv',sep = '\t',row.names = F,quote = F)
+write.table(rpkm_merge_rep_symbol_final,'./RNAseq-rpkm.tsv',sep = '\t',row.names = F,quote = F)
