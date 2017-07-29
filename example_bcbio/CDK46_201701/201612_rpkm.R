@@ -29,12 +29,14 @@ rpkm <- tpm2rpkm(sf,tx)
 colnames(rpkm) <- samples[gsub('.+S(\\d+)_.+','\\1',colnames(rpkm))]
 
 genes <- ens2symbol(rownames(rpkm))
-genes <- genes[genes$hgnc_symbol!='' & !(genes$ensembl_gene_id %in% genes$ensembl_gene_id[duplicated(genes$ensembl_gene_id)]) & 
-                 !(genes$hgnc_symbol %in% genes$hgnc_symbol[duplicated(genes$hgnc_symbol)]),]
-gene_name <- genes$hgnc_symbol
-names(gene_name) <- genes$ensembl_gene_id
-rpkm_symbol <- rpkm[rownames(rpkm)%in%names(gene_name),]
-rownames(rpkm_symbol) <- gene_name[rownames(rpkm_symbol)]
+genes <- genes[genes$hgnc_symbol!='',]
+rpkm2 <- rpkm[rownames(rpkm)%in%genes$ensembl_gene_id,]
+gene_v <- genes$hgnc_symbol
+names(gene_v) <- genes$ensembl_gene_id
+rpkm2 <- cbind.data.frame(rpkm2,'symbol'=gene_v[rownames(rpkm2)],stringsAsFactors=F)
+rpkm3 <- rpkm2 %>% group_by(symbol) %>% summarise_each(funs(sum))
+rpkm_symbol <- rpkm3[,-1]
+rownames(rpkm_symbol) <- rpkm3$symbol
 
-write.table(rpkm,'./201612_rpkm_ens.tsv',sep = '\t')
-write.table(rpkm_symbol,'./201612_rpkm_symbol.tsv',sep = '\t')
+write.table(log2(rpkm+1),'./201612_rpkm_ens.tsv',sep = '\t')
+write.table(log2(rpkm_symbol+1),'./201612_rpkm_symbol.tsv',sep = '\t')
