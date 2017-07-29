@@ -53,6 +53,7 @@ get_args <- function(){
 #' @param spikes a vector of string defining the name of spikes.
 #' @return p by n matrix for p genes across n samples
 tpm2rpkm <- function(combined,tx2gene,spikes = NULL){
+  colnames(combined) <- tolower(colnames(combined))
   gene_mapping <- cbind('transcript'= c(tx2gene$V1,spikes$GenBank),'gene' = c(tx2gene$V2,spikes$ERCC_ID))
   genes <- gene_mapping[,2]
   names(genes) <- gene_mapping[,1]
@@ -62,8 +63,8 @@ tpm2rpkm <- function(combined,tx2gene,spikes = NULL){
   names(scale_factor) <- x$sample
   
   combined$RPM <- combined$numreads/scale_factor[combined$sample]
-  combined$RPKM <- combined$RPM/(combined$effectiveLength/1000)
-  combined$gene <- genes[combined$id]
+  combined$RPKM <- combined$RPM/(combined$effectivelength/1000)
+  combined$gene <- genes[combined$name]
   
   rpkm_combined <- data.frame('sample'=combined$sample,'gene'=combined$gene,'RPKM'=combined$RPKM)
   rpkm_combined_gene <- rpkm_combined %>% group_by(sample,gene)%>% summarise_each(funs(sum))
@@ -79,12 +80,13 @@ tpm2rpkm <- function(combined,tx2gene,spikes = NULL){
 #' @param spikes a vector of string defining the name of spikes.
 #' @return p by n matrix for p genes across n samples
 sf2tpm <- function(combined,tx2gene,spikes = NULL){
+  colnames(combined) <- tolower(colnames(combined))
   gene_mapping <- cbind('transcript'= c(tx2gene$V1,spikes$GenBank),'gene' = c(tx2gene$V2,spikes$ERCC_ID))
   genes <- gene_mapping[,2]
   names(genes) <- gene_mapping[,1]
   combined$gene <- genes[combined$Name]
   combined2 <- combined[!is.na(combined[,'gene']),]
-  tpm_combined <- data.frame('sample'=combined2$sample,'gene'=combined2$gene,'tpm_raw'=combined2$TPM)
+  tpm_combined <- data.frame('sample'=combined2$sample,'gene'=combined2$gene,'tpm_raw'=combined2$tpm)
   tpm_combined_gene <- tpm_combined %>% group_by(sample,gene)%>% summarise_each(funs(sum))
   
   tpm_raw <- acast(tpm_combined_gene,gene~sample)
