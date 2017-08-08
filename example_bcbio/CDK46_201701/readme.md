@@ -1,7 +1,7 @@
 RNAseq_BrCaPorfiling_201604
 
 raw data:
-/groups/sorger/Marc/RNAseq_data/CDK46_response_201701
+/groups/sorger/rnaseq/CDK46_response_201701/fastq
 
 results:
 https://www.synapse.org/#!Synapse:syn10164319

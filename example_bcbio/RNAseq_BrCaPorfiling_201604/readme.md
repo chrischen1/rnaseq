@@ -1,8 +1,7 @@
 RNAseq_BrCaPorfiling_201604
 
 raw data:
-/groups/sorger/Marc/RNAseq_data/RNAseq_BrCaPorfiling_201604/run1_20160419
-/groups/sorger/Marc/RNAseq_data/RNAseq_BrCaPorfiling_201604/run2_20160420
+/groups/sorger/rnaseq/RNAseq_BrCaPorfiling_201604/fastq
 
 results:
 https://www.synapse.org/#!Synapse:syn10164317
