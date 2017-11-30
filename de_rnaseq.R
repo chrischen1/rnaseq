@@ -216,7 +216,7 @@ edgeR_wrapper <- function(cnt,grp_table,combine_fdr = F,w = NULL,CommonDisp = NU
         p_mat <- result_new$PValue
         fdr_mat <- result_new$FDR
         logFC <- result_new$logFC
-        if(length(unique(grp_table$group))==1){
+        if(length(unique(grp_table$condition))==2){
           return_mat <- cbind('pval'=p_mat,'fdr'=fdr_mat,'logFC'=logFC)
           rownames(return_mat) <- rownames(cnt_new)
           return(return_mat)
