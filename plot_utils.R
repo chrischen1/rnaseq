@@ -656,10 +656,11 @@ plot_volcano <- function(Fold_Change,Expre,P_Value,plot_title='',left=0.67,right
   # Red indicates P_Value<0.05 and log2Fold_Change<-1.3, green is P_Value<0.05 and log2Fold_Change>1.3)
   # red indicates up regulated, green is downregulated
   # adjust the numbers, colors, or variables as you deem fit
+  up_ind <- P_Value<.05 & Fold_Change>1
+  down_ind <- P_Value<.05 & Fold_Change<1
   
-  #with(subset(res, P_Value<.05 & Fold_Change>1.3), points(log2(Fold_Change), -log10(P_Value), pch=20, col="red"))
-  with(subset(dataset, P_Value<.05 & Fold_Change>1), points(log2(Avg_treatment), log2(Sum_expression), pch=20, col="red"))
-  with(subset(dataset, P_Value<.05 & Fold_Change<1), points(log2(Avg_treatment), log2(Sum_expression), pch=20, col="green"))
+  points(log2(Avg_treatment)[up_ind], log2(Sum_expression)[up_ind], pch=20, col="red")
+  points(log2(Avg_treatment)[down_ind], log2(Sum_expression)[down_ind], pch=20, col="green")
 }
       
 plot_vol_tf <- function(data_dir,results_dir){
