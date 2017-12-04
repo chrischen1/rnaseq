@@ -640,6 +640,28 @@ plot_vol_single <- function(dataset,plot_title,gene_list=NULL,left=0.67,right=1.
   with(subset(dataset, P_Value<.05 & Fold_Change<1), points(log2(Avg_treatment), log2(Sum_expression), pch=20, col="green"))
 }
 
+plot_volcano <- function(Fold_Change,Expre,P_Value,plot_title='',left=0.67,right=1.5){
+  
+  plot(log2(Fold_Change), log2(Expre), pch=20, xaxt="n", xlab= '', ylab="",cex.lab=1.8, xlim=c(-3.5,3.5), ylim=c(0,20),main=plot_title,cex.axis=1.8)
+  axis(1, at = seq(-4,4, by = 0.5), las=2,cex.axis=1.8)
+  title(xlab="log"["2"]~"(Ratio)", line=4, cex.lab=1.8)
+  title(ylab=("log"["2"]~"(Avg. Expression)"), line=2, cex.lab=1.8)
+  #lines
+  abline(v=log2(1.5),lty=3,lwd=5,col='black')
+  text(log2(right),0, paste("Ratio = ",right), col = "black", adj = c(0, -.1),cex=1.5)
+  abline(v=log2(2/3),lty=3,lwd=5,col='black')
+  text(log2(left),0, paste("Ratio = ",left), col = "black", adj = c(0, -.1),cex=1.5)
+  abline(v=log2(1),lty=3,lwd=5,col='black')
+  
+  # Red indicates P_Value<0.05 and log2Fold_Change<-1.3, green is P_Value<0.05 and log2Fold_Change>1.3)
+  # red indicates up regulated, green is downregulated
+  # adjust the numbers, colors, or variables as you deem fit
+  
+  #with(subset(res, P_Value<.05 & Fold_Change>1.3), points(log2(Fold_Change), -log10(P_Value), pch=20, col="red"))
+  with(subset(dataset, P_Value<.05 & Fold_Change>1), points(log2(Avg_treatment), log2(Sum_expression), pch=20, col="red"))
+  with(subset(dataset, P_Value<.05 & Fold_Change<1), points(log2(Avg_treatment), log2(Sum_expression), pch=20, col="green"))
+}
+      
 plot_vol_tf <- function(data_dir,results_dir){
   dataset <- read.table("Trisomy1_ratio_for_t_test_exp_logratio.diff", header=TRUE,sep="\t")
   #Trisomy
