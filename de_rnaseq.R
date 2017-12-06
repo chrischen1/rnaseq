@@ -233,3 +233,12 @@ edgeR_wrapper <- function(cnt,grp_table,combine_fdr = F,w = NULL,CommonDisp = NU
   rownames(p_mat) <- rownames(fdr_mat) <- rownames(logFC) <- rownames(cnt)
   return(list('pmat'=p_mat,'fdr_mat'=fdr_mat,'logFC'=logFC))
 }
+
+plot_vol_edgeR <- function(count,grp){
+  group1a = cbind('group1',group1[group1$V1!='',2:3])
+  rownames(group1a) = group1$V1[1:nrow(group1a)]
+  colnames(group1a) = c('group','condition','control')
+  counts1 <- counts[,rownames(group1a)]
+  de1 <- edgeR_wrapper(counts1,group1a)
+  plot_volcano(Fold_Change = 2^(de1[,3]),P_Value = de1[,1],Expre = apply(counts1, 1, mean))
+}
