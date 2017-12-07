@@ -156,7 +156,7 @@ multiplot <- function(..., plotlist=NULL, file, cols=1, layout=NULL) {
 
 plot_volcano <- function(Fold_Change,Expre,P_Value,plot_title='',left=0.67,right=1.5){
   
-  plot(log2(Fold_Change), log2(Expre), pch=20, xaxt="n", xlab= '', ylab="",cex.lab=1.8, xlim=c(-3.5,3.5), ylim=c(0,20),main=plot_title,cex.axis=1.8)
+  plot(log2(Fold_Change), log2(Expre), pch=20, xaxt="n", xlab= '', ylab="",cex.lab=1.8, xlim=c(-6,6), ylim=c(0,20),main=plot_title,cex.axis=1.8)
   axis(1, at = seq(-4,4, by = 0.5), las=2,cex.axis=1.8)
   title(xlab="log"["2"]~"(Ratio)", line=4, cex.lab=1.8)
   title(ylab=("log"["2"]~"(Avg. Expression)"), line=2, cex.lab=1.8)
