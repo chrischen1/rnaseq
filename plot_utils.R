@@ -154,9 +154,9 @@ multiplot <- function(..., plotlist=NULL, file, cols=1, layout=NULL) {
   }
 }
 
-plot_volcano <- function(Fold_Change,Expre,P_Value,plot_title='',left=0.67,right=1.5){
+plot_volcano <- function(Fold_Change,Expre,P_Value,plot_title='',left=0.67,right=1.5,main=''){
   
-  plot(log2(Fold_Change), log2(Expre), pch=20, xaxt="n", xlab= '', ylab="",cex.lab=1.8, xlim=c(-6,6), ylim=c(0,20),main=plot_title,cex.axis=1.8)
+  plot(log2(Fold_Change), log2(Expre), pch=20,main=main, xaxt="n", xlab= '', ylab="",cex.lab=1.8, xlim=c(-6,6), ylim=c(0,20),main=plot_title,cex.axis=1.8)
   axis(1, at = seq(-4,4, by = 0.5), las=2,cex.axis=1.8)
   title(xlab="log"["2"]~"(Ratio)", line=4, cex.lab=1.8)
   title(ylab=("log"["2"]~"(Avg. Expression)"), line=2, cex.lab=1.8)
@@ -252,3 +252,9 @@ plot_chromesome <- function(ratio,chr){
           panel.background = element_blank())
   return(g1)
 }
+
+plot_vol_edgeR <- function(counts,grp,main=''){
+  de1 <- edgeR_wrapper(counts1,grp)
+  plot_volcano(Fold_Change = 2^(de1[,3]),P_Value = de1[,1],Expre = apply(counts1, 1, mean),main=main)
+}
+                                     
