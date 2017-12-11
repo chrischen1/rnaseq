@@ -234,7 +234,7 @@ edgeR_wrapper <- function(cnt,grp_table,combine_fdr = F,w = NULL,CommonDisp = NU
   return(list('pmat'=p_mat,'fdr_mat'=fdr_mat,'logFC'=logFC))
 }
 
-plot_vol_edgeR <- function(count,grp){
+plot_vol_edgeR <- function(counts,grp){
   group1a = cbind('group1',group1[group1$V1!='',2:3])
   rownames(group1a) = group1$V1[1:nrow(group1a)]
   colnames(group1a) = c('group','condition','control')
