@@ -254,7 +254,7 @@ plot_chromesome <- function(ratio,chr){
 }
 
 plot_vol_edgeR <- function(counts,grp,main=''){
-  de1 <- edgeR_wrapper(counts1,grp)
+  de1 <- edgeR_wrapper(counts,grp)
   plot_volcano(Fold_Change = 2^(de1[,3]),P_Value = de1[,1],Expre = apply(counts1, 1, mean),main=main)
 }
                                      
