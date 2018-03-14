@@ -1,6 +1,7 @@
 download_script = '/storage/htc/bdm/Collaboration/liu_rnaseq/src/download_fastq.sh'
 ref_genome = '/storage/htc/bdm/ref_genomes/mouse/star_ref'
 project_dir = '/storage/htc/bdm/Collaboration/liu_rnaseq/'
+meta_file = '/storage/htc/bdm/Collaboration/liu_rnaseq/src/meta_info.csv'
 
 rawdata_path <- paste(project_dir,'rawdata/',sep = '')
 trim_data_path <- paste(project_dir,'trimdata/',sep = '')
@@ -40,7 +41,7 @@ system('module load star/star-2.5.2b')
 for(i in list.files(trim_data_path,pattern = '.+.fastq$')){
   out_path_i <- paste(alignment_result,gsub('.fastq','',i),sep = '')
   dir.create(out_path_i,showWarnings = F)
-  print(paste('srun -n1 -p Lewis -t 4:00:00 --mem 80G STAR --runThreadN 1 --quantMode GeneCounts --genomeDir ',ref_genome,' --readFilesIn ',trim_data_path,i,' --outFileNamePrefix ',out_path_i,'/ &',sep = ''))
+  system(paste('srun -n1 -p Lewis -t 4:00:00 --mem 80G STAR --runThreadN 1 --quantMode GeneCounts --genomeDir ',ref_genome,' --readFilesIn ',trim_data_path,i,' --outFileNamePrefix ',out_path_i,'/ &',sep = ''))
 }
 Sys.sleep(60)
 while(slurm_running()) {
@@ -48,4 +49,7 @@ while(slurm_running()) {
 }
 
 #After alignment, start differential expression analysis
+cnt <- NULL
 
+grp <- read.csv(meta_file,as.is=T,row.names=1)
+de_result <- edgeR_wrapper(cnt,grp)
