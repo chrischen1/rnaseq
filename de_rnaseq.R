@@ -3,17 +3,10 @@
 ## LSP RNAseq bcbio pipeline 
 ## by Artem Sokolov, Chris Chen, et al.
 
-library(edgeR)
-library(biomaRt)
-library(optparse)
-library(reshape2)
-library(dplyr)
-library(synapseClient)
-
 ## Retrieves count file and group information file from command line arguments, 
 ## Returns a named list of values which is used by the main() function in run_de.R
 get_args <- function(){
-  
+  library(optparse)
   ## Define available options
   option_list = list(
     make_option(c("-c", "--count"), type="character", default=NULL,
@@ -53,6 +46,8 @@ get_args <- function(){
 #' @param spikes a vector of string defining the name of spikes.
 #' @return p by n matrix for p genes across n samples
 tpm2rpkm <- function(combined,tx2gene,spikes = NULL){
+  library(reshape2)
+  library(dplyr)
   colnames(combined) <- tolower(colnames(combined))
   gene_mapping <- cbind('transcript'= c(tx2gene$V1,spikes$GenBank),'gene' = c(tx2gene$V2,spikes$ERCC_ID))
   genes <- gene_mapping[,2]
@@ -80,6 +75,8 @@ tpm2rpkm <- function(combined,tx2gene,spikes = NULL){
 #' @param spikes a vector of string defining the name of spikes.
 #' @return p by n matrix for p genes across n samples
 sf2tpm <- function(combined,tx2gene,spikes = NULL){
+  library(reshape2)
+  library(dplyr)
   colnames(combined) <- tolower(colnames(combined))
   gene_mapping <- cbind('transcript'= c(tx2gene$V1,spikes$GenBank),'gene' = c(tx2gene$V2,spikes$ERCC_ID))
   genes <- gene_mapping[,2]
@@ -98,6 +95,7 @@ sf2tpm <- function(combined,tx2gene,spikes = NULL){
 #' @param ens vector of ensembl_gene_ids.
 #' @return a dataframe with 2 columns: ensembl_gene_id and hgnc_symbol
 ens2symbol <- function(ens){
+  library(biomaRt)
   ensembl <- useEnsembl(biomart="ensembl", dataset="hsapiens_gene_ensembl")
   target_gene <- getBM(attributes=c('ensembl_gene_id','hgnc_symbol'),filters = 'ensembl_gene_id', values = ens, mart = ensembl)
   return(target_gene)
@@ -110,6 +108,7 @@ ens2symbol <- function(ens){
 #' @param gene_id2 format of destination gene id, must be valid attributes name in Ensembl
 #' @return a dataframe with 2 columns: gene_id1 and gene_id2
 gene_id_mapping <- function(ids,gene_id1='ensembl_gene_id',gene_id2='hgnc_symbol'){
+  library(biomaRt)
   ensembl <- useEnsembl(biomart="ensembl", dataset="hsapiens_gene_ensembl")
   target_gene <- getBM(attributes=c(gene_id1,gene_id2),filters = gene_id1, values = ids, mart = ensembl)
   return(target_gene)
@@ -122,6 +121,8 @@ gene_id_mapping <- function(ids,gene_id1='ensembl_gene_id',gene_id2='hgnc_symbol
 #' @param gene_id2 format of destination gene id, must be valid attributes name in Ensembl
 #' @return a gene by sample matrix with new gene_id
 gene_matrix_conversion <- function(m,gene_id1='ensembl_gene_id',gene_id2='hgnc_symbol'){
+  library(reshape2)
+  library(dplyr)
   target_genes <- gene_id_mapping(rownames(m))
   target_genes <- target_genes[target_genes[,1]!=''&target_genes[,2]!='',]
   genes <- target_genes[,2]
@@ -139,6 +140,7 @@ gene_matrix_conversion <- function(m,gene_id1='ensembl_gene_id',gene_id2='hgnc_s
 ## Returns a filename that can be directly used for loading by, e.g., read.delim
 resolve.filename <- function( fn, syn.local   = "~/data/")
 {
+  library(synapseClient)
   if( substr( fn, 0, 3 ) == "syn" )
   {
     dir.create(syn.local,showWarnings = F)
@@ -173,6 +175,7 @@ get_sample_csv <- function(sample_path){
 #' @return list of 3 if combine_fdr = F: pmat,fdr_mat and logFC: all are p by m matrix for p genes across m types of treatments
 #'         p by m+4 matrix for p genes across m types of treatments and p-value, LR,logCPM and FDR
 edgeR_wrapper <- function(cnt,grp_table,combine_fdr = F,w = NULL,CommonDisp = NULL,TagwiseDisp = NULL){
+  library(edgeR)
   design <- model.matrix(~condition,data = grp_table)
   # add RUV batch effect correction when w exists
   if(!is.null(w))  design <- cbind(design,w)
