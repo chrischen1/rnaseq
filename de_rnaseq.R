@@ -234,4 +234,10 @@ edgeR_wrapper <- function(cnt,grp_table,combine_fdr = F,w = NULL,CommonDisp = NU
   return(list('pmat'=p_mat,'fdr_mat'=fdr_mat,'logFC'=logFC))
 }
 
+# examine if there is task running on slurm
+slurm_running <- function(){
+  sacct_out <- system('sacct',intern = T)
+  return(length(grep('RUNNING',sacct_out))>0)
+}
+
 
