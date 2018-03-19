@@ -107,9 +107,9 @@ ens2symbol <- function(ens){
 #' @param gene_id1 format of original gene id, must be valid filters name in Ensembl
 #' @param gene_id2 format of destination gene id, must be valid attributes name in Ensembl
 #' @return a dataframe with 2 columns: gene_id1 and gene_id2
-gene_id_mapping <- function(ids,gene_id1='ensembl_gene_id',gene_id2='hgnc_symbol'){
+gene_id_mapping <- function(ids,gene_id1='ensembl_gene_id',gene_id2='hgnc_symbol',dataset="hsapiens_gene_ensembl"){
   library(biomaRt)
-  ensembl <- useEnsembl(biomart="ensembl", dataset="hsapiens_gene_ensembl")
+  ensembl <- useEnsembl(biomart="ensembl", dataset=dataset)
   target_gene <- getBM(attributes=c(gene_id1,gene_id2),filters = gene_id1, values = ids, mart = ensembl)
   return(target_gene)
 }
@@ -120,10 +120,10 @@ gene_id_mapping <- function(ids,gene_id1='ensembl_gene_id',gene_id2='hgnc_symbol
 #' @param gene_id1 format of original gene id, must be valid filters name in Ensembl
 #' @param gene_id2 format of destination gene id, must be valid attributes name in Ensembl
 #' @return a gene by sample matrix with new gene_id
-gene_matrix_conversion <- function(m,gene_id1='ensembl_gene_id',gene_id2='hgnc_symbol'){
+gene_matrix_conversion <- function(m,gene_id1='ensembl_gene_id',gene_id2='hgnc_symbol',dataset="hsapiens_gene_ensembl"){
   library(reshape2)
   library(dplyr)
-  target_genes <- gene_id_mapping(rownames(m))
+  target_genes <- gene_id_mapping(rownames(m),gene_id1,gene_id2,dataset)
   target_genes <- target_genes[target_genes[,1]!=''&target_genes[,2]!='',]
   genes <- target_genes[,2]
   names(genes) <- target_genes[,1]
@@ -238,9 +238,26 @@ edgeR_wrapper <- function(cnt,grp_table,combine_fdr = F,w = NULL,CommonDisp = NU
 }
 
 # examine if there is task running on slurm
-slurm_running <- function(){
+slurm_running <- function(job_name){
   sacct_out <- system('sacct',intern = T)
-  return(length(grep('RUNNING',sacct_out))>0)
+  sacct_idx <- c()
+  for(i in job_ids){
+    sacct_idx <- c(sacct_idx,grep(paste('^',i,' ',sep = ''),sacct_out))
+  }
+  sacct_out <- sacct_out[sacct_idx]
+  return(length(grep(job_name,sacct_out))>0)
 }
 
-
+quantile_normalisation <- function(df){
+  df_rank <- apply(df,2,rank,ties.method="min")
+  df_sorted <- data.frame(apply(df, 2, sort))
+  df_mean <- apply(df_sorted, 1, mean)
+  
+  index_to_mean <- function(my_index, my_mean){
+    return(my_mean[my_index])
+  }
+  
+  df_final <- apply(df_rank, 2, index_to_mean, my_mean=df_mean)
+  rownames(df_final) <- rownames(df)
+  return(df_final)
+}
