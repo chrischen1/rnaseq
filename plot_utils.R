@@ -155,16 +155,16 @@ multiplot <- function(..., plotlist=NULL, file, cols=1, layout=NULL) {
 }
 
 
-plot_volcano <- function(Fold_Change,Expre,P_Value,plot_title='',left=0.67,right=1.5,hide_black_dots =F,show_lines=T,cex=cex){
+plot_volcano <- function(Fold_Change,Expre,P_Value,plot_title='',left=0.67,right=1.5,hide_black_dots =F,show_lines=T,cex=cex,xlim=6,ylim=20){
   # Red indicates P_Value<0.05 and log2Fold_Change<-1, green is P_Value<0.05 and log2Fold_Change>1)
   # red indicates up regulated, green is downregulated
   
   if(hide_black_dots){
     plot(log2(Fold_Change), log2(Expre),col='white',
-         cex = cex, main=plot_title, pch=20,xaxt="n", xlab= '', ylab="",cex.lab=1.8, xlim=c(-6,6), ylim=c(0,20),cex.axis=1.8)
+         cex = cex, main=plot_title, pch=20,xaxt="n", xlab= '', ylab="",cex.lab=1.8, xlim=c(-xlim,xlim), ylim=c(0,xlim),cex.axis=1.8)
     
   }else{
-    plot(log2(Fold_Change), log2(Expre),cex=cex,main=plot_title, pch=20, xaxt="n", xlab= '', ylab="",cex.lab=1.8, xlim=c(-6,6), ylim=c(0,20),cex.axis=1.8)
+    plot(log2(Fold_Change), log2(Expre),cex=cex,main=plot_title, pch=20, xaxt="n", xlab= '', ylab="",cex.lab=1.8, xlim=c(-xlim,xlim), ylim=c(0,20),cex.axis=1.8)
   }
   axis(1, at = seq(-4,4, by = 0.5), las=2,cex.axis=1.8)
   title(xlab="log"["2"]~"(Ratio)", line=4, cex.lab=1.8)
@@ -192,10 +192,10 @@ plot_volcano_pval <- function(Fold_Change,P_Value,plot_title='',left=0.67,right=
   
   if(hide_black_dots){
     plot(log2(Fold_Change), -log10(P_Value),col='white',
-         cex = cex, main=plot_title, pch=20,xaxt="n", xlab= '', ylab="",cex.lab=1.8, xlim=c(-6,6), ylim=c(0,20),cex.axis=1.8)
+         cex = cex, main=plot_title, pch=20,xaxt="n", xlab= '', ylab="",cex.lab=1.8, xlim=c(-xlim,xlim), ylim=c(0,ylim),cex.axis=1.8)
     
   }else{
-    plot(log2(Fold_Change),-log10(P_Value),cex=cex,main=plot_title, pch=20, xaxt="n", xlab= '', ylab="",cex.lab=1.8, xlim=c(-6,6), ylim=c(0,20),cex.axis=1.8)
+    plot(log2(Fold_Change),-log10(P_Value),cex=cex,main=plot_title, pch=20, xaxt="n", xlab= '', ylab="",cex.lab=1.8, xlim=c(-xlim,xlim), ylim=c(0,ylim),cex.axis=1.8)
   }
   axis(1, at = seq(-4,4, by = 0.5), las=2,cex.axis=1.8)
   title(xlab="log"["2"]~"(Ratio)", line=4, cex.lab=1.8)
