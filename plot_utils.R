@@ -155,7 +155,7 @@ multiplot <- function(..., plotlist=NULL, file, cols=1, layout=NULL) {
 }
 
 
-plot_volcano <- function(Fold_Change,Expre,P_Value,plot_title='',left=0.67,right=1.5,hide_black_dots =F,show_lines=T,cex=cex,xlim=6,ylim=20){
+plot_volcano <- function(Fold_Change,Expre,P_Value,plot_title='',left=0.67,right=1.5,hide_black_dots =F,show_lines=T,cex=1,xlim=6,ylim=20){
   # Red indicates P_Value<0.05 and log2Fold_Change<-1, green is P_Value<0.05 and log2Fold_Change>1)
   # red indicates up regulated, green is downregulated
   
@@ -186,7 +186,7 @@ plot_volcano <- function(Fold_Change,Expre,P_Value,plot_title='',left=0.67,right
   points(log2(Fold_Change)[down_ind], log2(Expre)[down_ind], pch=20, col="green",cex=cex)
 }
 
-plot_volcano_pval <- function(Fold_Change,P_Value,plot_title='',left=0.67,right=1.5,hide_black_dots =F,show_lines=T,cex=1,col_cutoff=1){
+plot_volcano_pval <- function(Fold_Change,P_Value,plot_title='',left=0.67,right=1.5,hide_black_dots =F,show_lines=T,cex=1,col_cutoff=1,xlim=6,ylim=20){
   # Red indicates P_Value<0.05 and log2Fold_Change<-1, green is P_Value<0.05 and log2Fold_Change>1)
   # red indicates up regulated, green is downregulated
   
