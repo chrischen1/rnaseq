@@ -186,7 +186,7 @@ plot_volcano <- function(Fold_Change,Expre,P_Value,plot_title='',left=0.67,right
   points(log2(Fold_Change)[down_ind], log2(Expre)[down_ind], pch=20, col="green",cex=cex)
 }
 
-plot_volcano_pval <- function(Fold_Change,P_Value,plot_title='',left=0.67,right=1.5,hide_black_dots =F,show_lines=T,cex=1){
+plot_volcano_pval <- function(Fold_Change,P_Value,plot_title='',left=0.67,right=1.5,hide_black_dots =F,show_lines=T,cex=1,col_cutoff=1){
   # Red indicates P_Value<0.05 and log2Fold_Change<-1, green is P_Value<0.05 and log2Fold_Change>1)
   # red indicates up regulated, green is downregulated
   
@@ -210,8 +210,8 @@ plot_volcano_pval <- function(Fold_Change,P_Value,plot_title='',left=0.67,right=
   abline(v=log2(1),lty=3,lwd=5,col='black')
   
   
-  up_ind <- P_Value<.05 & log2(Fold_Change) > 1
-  down_ind <- P_Value<.05 & log2(Fold_Change) < -1
+  up_ind <- P_Value<.05 & log2(Fold_Change) > col_cutoff
+  down_ind <- P_Value<.05 & log2(Fold_Change) < (-col_cutoff)
   
   points(log2(Fold_Change)[up_ind],  -log10(P_Value)[up_ind], pch=20, col="red",cex=cex)
   points(log2(Fold_Change)[down_ind],  -log10(P_Value)[down_ind], pch=20, col="green",cex=cex)
