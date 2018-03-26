@@ -239,12 +239,7 @@ edgeR_wrapper <- function(cnt,grp_table,combine_fdr = F,w = NULL,CommonDisp = NU
 
 # examine if there is task running on slurm
 slurm_running <- function(job_name){
-  sacct_out <- system('sacct',intern = T)
-  sacct_idx <- c()
-  for(i in job_ids){
-    sacct_idx <- c(sacct_idx,grep(paste('^',i,' ',sep = ''),sacct_out))
-  }
-  sacct_out <- sacct_out[sacct_idx]
+  sacct_out <- system('sacct |grep ING',intern = T)
   return(length(grep(job_name,sacct_out))>0)
 }
 

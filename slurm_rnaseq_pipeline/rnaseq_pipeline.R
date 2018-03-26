@@ -11,7 +11,7 @@ dir.create(rawdata_path,showWarnings = F)
 dir.create(trim_data_path,showWarnings = F)
 dir.create(alignment_result,showWarnings = F)
 dir.create(output_result,showWarnings = F)
-job_name <- gsub('/','_',project_dir)
+job_name <- substr(gsub('.+/(.+)/','\\1',project_dir),1,8)
 source('https://raw.githubusercontent.com/chrischen1/rnaseq/master/de_rnaseq.R')
 
 # download fastq
