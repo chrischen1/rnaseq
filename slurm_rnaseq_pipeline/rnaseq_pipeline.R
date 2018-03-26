@@ -1,8 +1,12 @@
+args <- commandArgs(TRUE)
+source(args[1])
+
 rawdata_path <- paste(project_dir,'rawdata/',sep = '')
 trim_data_path <- paste(project_dir,'trimdata/',sep = '')
 alignment_result <- paste(project_dir,'alignment_result/',sep = '')
 output_result <- paste(project_dir,'final_result/',sep = '')
 
+dir.create(project_dir,showWarnings = F)
 dir.create(rawdata_path,showWarnings = F)
 dir.create(trim_data_path,showWarnings = F)
 dir.create(alignment_result,showWarnings = F)
