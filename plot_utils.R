@@ -302,4 +302,39 @@ plot_vol_edgeR <- function(counts,grp,plot_title='',hide_black_dots =F,cex=1,sho
     
   }
 }
-                                     
+       
+plot_pca <- function(i,j,df_pca,col){
+  if(i==j){
+    plot(df_pca$x[,i], df_pca$x[,j],col='white',xlab = '',ylab = '',xaxt='n',yaxt='n')
+    legend('center',legend = paste('PC',i),cex = 3,bty = 'n')
+  }else{
+    per_sdv <- round(pca_res$sdev/sum(pca_res$sdev),4)*100
+    plot(df_pca$x[,j], df_pca$x[,i],col = col,xlab = paste('PC',i,' ',per_sdv[i],'%',sep = ''),ylab = paste('PC',j,' ',per_sdv[j],'%',sep = ''))
+
+  }
+}
+
+plot_pca_2pc <- function(exp,grp){
+  library(ggplot2)
+  if(sum(colnames(exp)!=rownames(grp))>0){
+    warning('rownames of expression matrix must be identical as rownames of group table')
+  }
+  pca_res  <- prcomp(t(exp))
+  per_sdv <- round(pca_res$sdev/sum(pca_res$sdev),4)*100
+  df_pca <- data.frame('PC1'=pca_res$x[,1],'PC2'=pca_res$x[,2],'Condition'=grp$condition)
+  g <- ggplot(data = df_pca,aes(x=PC1, y=PC2,color=Condition))+geom_point(size=3)+labs(x = paste('PC1 ',per_sdv[1],'%',sep = ''),y = paste('PC2 ',per_sdv[2],'%',sep = ''))
+  plot(g)
+}
+
+plot_pca_3pc <- function(exp,grp){
+  if(sum(colnames(exp)!=rownames(grp))>0){
+    warning('rownames of expression matrix must be identical as rownames of group table')
+  }
+  df_pca <- prcomp(t(exp))
+  par(mfrow=c(3,3))
+  for(i in 1:3){
+    for(j in 1:3){
+      plot_pca(i,j,df_pca,col = factor(grp$condition))
+    }
+  }
+}
