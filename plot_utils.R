@@ -317,7 +317,7 @@ plot_pca <- function(i,j,df_pca,col){
 plot_pca_2pc <- function(exp,grp){
   library(ggplot2)
   if(sum(colnames(exp)!=rownames(grp))>0){
-    warning('rownames of expression matrix must be identical as rownames of group table')
+    warning('colnames of expression matrix must be identical as rownames of group table')
   }
   pca_res  <- prcomp(t(exp))
   per_sdv <- round(pca_res$sdev/sum(pca_res$sdev),4)*100
@@ -328,7 +328,7 @@ plot_pca_2pc <- function(exp,grp){
 
 plot_pca_3pc <- function(exp,grp){
   if(sum(colnames(exp)!=rownames(grp))>0){
-    warning('rownames of expression matrix must be identical as rownames of group table')
+    warning('colnames of expression matrix must be identical as rownames of group table')
   }
   df_pca <- prcomp(t(exp))
   par(mfrow=c(3,3))
