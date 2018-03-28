@@ -12,16 +12,18 @@ dir.create(trim_data_path,showWarnings = F)
 dir.create(alignment_result,showWarnings = F)
 dir.create(output_result,showWarnings = F)
 job_name <- substr(gsub('.+/(.+)/','\\1',project_dir),1,8)
-source('https://raw.githubusercontent.com/chrischen1/rnaseq/master/de_rnaseq.R')
 
 # download fastq
+print(paste(Sys.time(),'downloading fastq'))
 setwd(rawdata_path)
 system(paste('cd',rawdata_path))
 system(paste('bash',download_script))
 
 # After downloading, extract results
+print(paste(Sys.time(),'extracting results'))
 for(i in list.files(rawdata_path,pattern = '.+.fastq.gz')){
-  system(paste('srun -n1 -p Lewis -t 2:00:00 --mem 40G -J ',job_name,' gzip -d ',rawdata_path,i,' &',sep = ''))
+  file2extract <- paste(rawdata_path,i,sep = '')
+  system(paste('sbatch P1_extract_rawdata.sbatch',file2extract,job_name))
 }
 Sys.sleep(60)
 while(slurm_running(job_name)) {
@@ -29,8 +31,11 @@ while(slurm_running(job_name)) {
 }
 
 # After extraction, trim results
+print(paste(Sys.time(),'trimming results'))
 for(i in list.files(rawdata_path,pattern = '.+.fastq$')){
-  system(paste('srun -n1 -p Lewis -t 2:00:00 --mem 40G -J ',job_name,' /group/birchler-cheng/tools/FASTX_Toolkit/fastq_quality_filter -Q 33  -q 20 -p 80  -i ',rawdata_path,i,' -o ',trim_data_path,i,' &',sep = ''))
+  infile <- paste(rawdata_path,i,sep = '')
+  outfile <- paste(trim_data_path,i,sep = '') 
+  system(paste('sbatch P2_trim_data.sbatch',infile,outfile,job_name))
 }
 Sys.sleep(60)
 while(slurm_running(job_name)) {
@@ -38,11 +43,13 @@ while(slurm_running(job_name)) {
 }
 
 # After trimming, start alignment
+print(paste(Sys.time(),'start alignment'))
 system('module load star/star-2.5.2b')
 for(i in list.files(trim_data_path,pattern = '.+.fastq$')){
-  out_path_i <- paste(alignment_result,gsub('.fastq','',i),sep = '')
+  out_path_i <- paste(alignment_result,gsub('.fastq','',i),'/',sep = '')
   dir.create(out_path_i,showWarnings = F)
-  system(paste('srun -n1 -p Lewis -t 6:00:00 --mem 110G -J ',job_name,' STAR --runThreadN 1 --quantMode GeneCounts --genomeDir ',ref_genome,' --readFilesIn ',trim_data_path,i,' --outFileNamePrefix ',out_path_i,'/ &',sep = ''))
+  infile <- paste(trim_data_path,i,sep = '')
+  system(paste('sbatch P3_alignment_with_star.sbatch',ref_genome,infile,out_path_i,job_name))
 }
 Sys.sleep(60)
 while(slurm_running(job_name)) {
@@ -50,31 +57,13 @@ while(slurm_running(job_name)) {
 }
 
 #After alignment, start differential expression analysis
-cnt <- NULL
-cnt_colnames <- NULL
-all_results <- list.dirs(alignment_result)[-1]
-for(i in all_results){
-  new_cnt <- read.delim(paste(i,'/ReadsPerGene.out.tab',sep = ''),row.names = 1)
-  if(is.null(cnt)){
-    cnt <- new_cnt[-(1:3),1,drop=FALSE]
-  }else{
-    cnt <- cbind(cnt,new_cnt[rownames(cnt),1])
-  }
-  
-  cnt_colnames <- c(cnt_colnames,gsub('.+//','',i))
+print(paste(Sys.time(),'start differential expression analysis'))
+system(paste('sbatch P4_DE_analysis.sbatch',alignment_result,output_result,job_name))
+Sys.sleep(60)
+while(slurm_running(job_name)) {
+  Sys.sleep(300)
 }
-colnames(cnt) <- cnt_colnames
-# cnt <- gene_matrix_conversion(cnt,dataset = 'mmusculus_gene_ensembl',gene_id2 = 'mgi_symbol')
 
-grp <- read.csv(meta_file,as.is=T,row.names=1)
-cnt <- cnt[,rownames(grp)]
-de_result <- edgeR_wrapper(cnt,grp)
-if(is.list(de_result)){
-  write.csv(de_result$pmat,paste(output_result,'pval.csv',sep = ''))
-  write.csv(de_result$fdr_mat,paste(output_result,'fdr.csv',sep = ''))
-  write.csv(de_result$logFC,paste(output_result,'logFC.csv',sep = ''))
-}else{
-  write.csv(de_result,paste(output_result,'de_results.csv',sep = ''))
-}
-colnames(cnt) <- gsub('^D','',colnames(cnt) )
-write.csv(cnt,paste(output_result,'counts.csv',sep = ''))
+#RNASeq pipeline finished
+print(paste(Sys.time(),'RNASeq pipeline finished'))
+
