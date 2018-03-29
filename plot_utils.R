@@ -308,7 +308,7 @@ plot_pca <- function(i,j,df_pca,col){
     plot(df_pca$x[,i], df_pca$x[,j],col='white',xlab = '',ylab = '',xaxt='n',yaxt='n')
     legend('center',legend = paste('PC',i),cex = 3,bty = 'n')
   }else{
-    per_sdv <- round(pca_res$sdev/sum(pca_res$sdev),4)*100
+    per_sdv <- round(df_pca$sdev/sum(df_pca$sdev),4)*100
     plot(df_pca$x[,j], df_pca$x[,i],col = col,xlab = paste('PC',j,' ',per_sdv[j],'%',sep = ''),ylab = paste('PC',i,' ',per_sdv[i],'%',sep = ''))
 
   }
