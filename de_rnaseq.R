@@ -90,6 +90,42 @@ sf2tpm <- function(combined,tx2gene,spikes = NULL){
   return(tpm_raw)
 }
 
+
+#' get length of genes given a list of gene names
+#'
+#' @param gene_id_type types of gene ID, see ensembl bioMart package for possible types
+#' @param dataset name of ensembl dataset
+#' @return a named list of gene lengths, duplicate gene length records will be averaged
+get_gene_length <- function(gene_names,gene_id_type='ensembl_gene_id',dataset="hsapiens_gene_ensembl"){
+  library(biomaRt)
+  library(reshape2)
+  library(dplyr)
+  
+  ensembl <- useEnsembl(biomart="ensembl", dataset=dataset)
+  target_gene_raw <- getBM(attributes=c(gene_id_type,'transcript_length'),filters = gene_id_type, values = gene_names, mart = ensembl)
+  target_gene <- target_gene_raw %>% group_by(ensembl_gene_id)%>% summarise_all(funs(mean))
+  l <- target_gene$transcript_length
+  names(l) <- target_gene$ensembl_gene_id
+  return(l)
+}
+
+#' transform counts to TPM
+#'
+#' @param m p by n counts matrix for p genes across n samples
+#' @param gene_length a named list of gene lengths
+#' @return p by n TPM matrix for p genes across n samples
+counts2tpm <- function(m,gene_length){
+  m <- m[names(gene_length),]
+  rpk <- m/gene_length
+  scaling <- colSums(rpk)/1000000
+  for(i in 1:ncol(rpk)){
+    rpk[,i] <- rpk[,i]/scaling[i]
+  }
+  rownames(rpk) <- names(gene_length)
+  return(rpk)
+}
+
+
 #' get hgnc_symbol from ensembl_gene_id  
 #'
 #' @param ens vector of ensembl_gene_ids.
