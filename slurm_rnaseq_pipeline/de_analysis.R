@@ -2,6 +2,7 @@ args <- commandArgs(TRUE)
 
 alignment_result <- args[1]
 output_result <- args[2]
+meta_file <- args[3]
 
 source('https://raw.githubusercontent.com/chrischen1/rnaseq/master/de_rnaseq.R')
 

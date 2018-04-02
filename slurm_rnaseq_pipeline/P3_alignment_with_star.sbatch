@@ -1,7 +1,5 @@
 #!/bin/bash -l
 #SBATCH -p Lewis
-#SBATCH -o $4.out
-#SBATCH -e $4.err
 #SBATCH -N 1
 #SBATCH -n 1
 #SBATCH --mem 110G
