@@ -18,12 +18,17 @@ dir.create(log_path,showWarnings = F)
 job_name <- substr(gsub('.+/(.+)/','\\1',project_dir),1,8)
 
 # download fastq
-print(paste(Sys.time(),'downloading fastq'))
 setwd(rawdata_path)
 system(paste('cd',rawdata_path))
-system(paste('bash',download_script))
-setwd(log_path)
+if(download_script!=''){
+  print(paste(Sys.time(),'downloading fastq files'))
+  system(paste('bash',download_script))
+}else{
+  print(paste(Sys.time(),'copying fastq files'))
+  system(paste('cp ',rawdata_path,'*.fastq.gz ./',sep = ''))
+}
 
+setwd(log_path)
 # After downloading, extract results
 print(paste(Sys.time(),'extracting results'))
 for(i in list.files(rawdata_path,pattern = '.+.fastq.gz')){
