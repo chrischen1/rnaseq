@@ -25,7 +25,7 @@ if(download_script!=''){
   system(paste('bash',download_script))
 }else{
   print(paste(Sys.time(),'copying fastq files'))
-  system(paste('cp ',rawdata_path,'*.fastq.gz ./',sep = ''))
+  system(paste('cp ',fastq_dir,'*.fastq.gz ./',sep = ''))
 }
 
 setwd(log_path)
