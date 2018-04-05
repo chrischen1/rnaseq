@@ -67,11 +67,13 @@ while(slurm_running(job_name)) {
 }
 
 #After alignment, start differential expression analysis
-print(paste(Sys.time(),'start differential expression analysis'))
-system(paste('sbatch -J ',job_name,' ',script_dir,'P4_DE_analysis.sbatch ',alignment_result,' ',output_result,' ',meta_file,sep = ''))
-Sys.sleep(60)
-while(slurm_running(job_name)) {
-  Sys.sleep(300)
+if(meta_file!=''){
+  print(paste(Sys.time(),'start differential expression analysis'))
+  system(paste('sbatch -J ',job_name,' ',script_dir,'P4_DE_analysis.sbatch ',alignment_result,' ',output_result,' ',meta_file,sep = ''))
+  Sys.sleep(60)
+  while(slurm_running(job_name)) {
+    Sys.sleep(300)
+  }
 }
 
 #RNASeq pipeline finished
