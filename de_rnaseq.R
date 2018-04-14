@@ -150,6 +150,25 @@ gene_id_mapping <- function(ids,gene_id1='ensembl_gene_id',gene_id2='hgnc_symbol
   return(target_gene)
 }
 
+#' conversion a gene by sample matrix from gene_id1 from gene_id2 by names in t[,1] to names in t[,2]
+#'
+#' @param m a gene by sample matrix
+#' @param t conversion table
+#' @return a gene by sample matrix with new gene_id
+gene_matrix_conversion_by_table <- function(m,t){
+  library(reshape2)
+  library(dplyr)
+  genes <- t[,2]
+  names(genes) <- t[,1]
+  m <- cbind.data.frame(m,'name'=genes[rownames(m)],stringsAsFactors=F)
+  m <- m[!is.na(m$name),]
+  m2 <- m %>% group_by(name)%>% summarise_each(funs(sum))
+  m3 <- as.matrix(m2[,-1])
+  rownames(m3) <- m2$name
+  return(m3)
+}
+
+
 #' conversion a gene by sample matrix from gene_id1 from gene_id2
 #'
 #' @param m a gene by sample matrix
@@ -157,18 +176,10 @@ gene_id_mapping <- function(ids,gene_id1='ensembl_gene_id',gene_id2='hgnc_symbol
 #' @param gene_id2 format of destination gene id, must be valid attributes name in Ensembl
 #' @return a gene by sample matrix with new gene_id
 gene_matrix_conversion <- function(m,gene_id1='ensembl_gene_id',gene_id2='hgnc_symbol',dataset="hsapiens_gene_ensembl"){
-  library(reshape2)
-  library(dplyr)
+  
   target_genes <- gene_id_mapping(rownames(m),gene_id1,gene_id2,dataset)
   target_genes <- target_genes[target_genes[,1]!=''&target_genes[,2]!='',]
-  genes <- target_genes[,2]
-  names(genes) <- target_genes[,1]
-  m <- cbind.data.frame(m,'name'=genes[rownames(m)],stringsAsFactors=F)
-  m <- m[!is.na(m$name),]
-  m2 <- m %>% group_by(name)%>% summarise_each(funs(sum))
-  m3 <- as.matrix(m2[,-1])
-  rownames(m3) <- m2$name
-  return(m3)
+  gene_matrix_conversion_by_table(m,target_genes)
 }
 
 
@@ -292,3 +303,20 @@ quantile_normalisation <- function(df){
   rownames(df_final) <- rownames(df)
   return(df_final)
 }
+
+kegg_pathway_enrichment <- function(gene_names,organism='mmu',keyType = 'uniprot',pAdjustMethod='none',pvalueCutoff = 0.05){
+  library(clusterProfiler)
+  result<- enrichKEGG(gene_names,organism = organism,keyType = keyType,pAdjustMethod=pAdjustMethod,pvalueCutoff = pvalueCutoff)
+  pathway_slt <- result@result
+  
+}
+
+plot_pathway_kegg <- function(gene_names,log_fc,pathway.id,out.suffix='',organism='mmu',gene.idtype='entrez'){
+  library(pathview)
+  names(log_fc) <- gene_names
+  pv.out <- pathview(gene.data =log_fc, pathway.id = pathway.id,out.suffix=out.suffix,species = organism, kegg.native = F,gene.idtype = gene.idtype,pdf.size=c(12,12))
+
+}
+
+
+

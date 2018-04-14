@@ -67,6 +67,24 @@ while(slurm_running(job_name)) {
 }
 
 #After alignment, start differential expression analysis
+# combine counts
+cnt <- NULL
+cnt_colnames <- NULL
+all_results <- list.dirs(alignment_result,recursive = F)
+for(i in all_results){
+  new_cnt <- read.delim(paste(i,'/ReadsPerGene.out.tab',sep = ''),row.names = 1)
+  if(is.null(cnt)){
+    cnt <- new_cnt[-(1:3),1,drop=FALSE]
+  }else{
+    cnt <- cbind(cnt,new_cnt[rownames(cnt),1])
+  }
+  
+  cnt_colnames <- c(cnt_colnames,gsub('.+//','',i))
+}
+colnames(cnt) <- cnt_colnames
+write.csv(cnt,paste(output_result,'counts.csv',sep = ''))
+
+
 if(meta_file!=''){
   print(paste(Sys.time(),'start differential expression analysis'))
   system(paste('sbatch -J ',job_name,' ',script_dir,'P4_DE_analysis.sbatch ',alignment_result,' ',output_result,' ',meta_file,sep = ''))
