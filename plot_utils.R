@@ -1,29 +1,4 @@
 
-#plot_distribution = function(ratio , title_name , image_name,left_line,right_line){
-#  ratio[ratio>6]=6
-#  library(ggplot2)
-#  df = data.frame(ratio=ratio)
-#  summary(ratio)
-#  xlabel = c(sprintf("%.1f", round(seq(0,5.85,0.5),2)),'>6.0')
-#  g1<-ggplot(df, aes(x=ratio)) + geom_histogram(binwidth=0.05, color="black", fill="cornflowerblue") +
-#    geom_freqpoly(binwidth=0.05, size=1,col="gray24")+ theme_bw()  +
-#    # scale_fill_gradient("Frequency",low = "green", high = "red") +
-#    labs(title=NULL, x="Ratio", y ="Frequency")+
-#    theme(plot.title = element_text(color="#666666", face="bold", size=35)) +
-#    theme(legend.text = element_text( size=22),legend.title = element_text( size=22), legend.key.size = unit(1,"cm")) +
-#    theme(axis.title = element_text(color="#666666", face="bold", size=32),axis.text=element_text(size=31))+
-#    theme(panel.grid.major = element_line(colour = "black", linetype = "dotted"),panel.grid.minor.y = element_blank())+
-#    geom_vline(xintercept = c(left_line,1,right_line),color = "black", size=1.5)+theme(plot.title = element_text(hjust = 0.5))
-#    x_ranges = ggplot_build(g1)$layout$panel_ranges[[1]]$x.range
-#    g1 = g1 + annotate("text", x = c(left_line-0.1,1.1,right_line+0.1), y = ggplot_build(g1)$layout$panel_ranges[[1]]$y.range[2]*0.94, label = sprintf("%.2f", round(c(left_line,1,right_line),2)) ,size=12)+
-#      scale_x_continuous("Ratio",breaks = seq(0,6,0.5),  labels=xlabel,minor_breaks = seq(round(x_ranges[1],1),round(x_ranges[2],1),0.1))
-#  #jpeg(image_name, width = 2080 , height = 700)
-#  #plot(g1)
-#  #dev.off()
-#  return(g1)
-#}
-#
-
 modify_ylab <- function(y_labs){
   for(i in 1:length(y_labs)){
     y <- as.numeric(y_labs[i])
@@ -303,22 +278,20 @@ plot_vol_edgeR <- function(counts,grp,plot_title='',hide_black_dots =F,cex=1,sho
   }
 }
        
-plot_pca <- function(i,j,df_pca,col){
+plot_pca <- function(i,j,df_pca,col,pch=1){
   if(i==j){
     plot(df_pca$x[,i], df_pca$x[,j],col='white',xlab = '',ylab = '',xaxt='n',yaxt='n')
     legend('center',legend = paste('PC',i),cex = 3,bty = 'n')
   }else{
     per_sdv <- round(df_pca$sdev/sum(df_pca$sdev),4)*100
-    plot(df_pca$x[,j], df_pca$x[,i],col = col,xlab = paste('PC',j,' ',per_sdv[j],'%',sep = ''),ylab = paste('PC',i,' ',per_sdv[i],'%',sep = ''))
+    plot(df_pca$x[,j], df_pca$x[,i],col = col,pch = as.numeric(pch),xlab = paste('PC',j,' ',per_sdv[j],'%',sep = ''),ylab = paste('PC',i,' ',per_sdv[i],'%',sep = ''))
 
   }
 }
 
 plot_pca_2pc <- function(exp,grp){
   library(ggplot2)
-  if(sum(colnames(exp)!=rownames(grp))>0){
-    warning('colnames of expression matrix must be identical as rownames of group table')
-  }
+  grp <- grp[rownames(exp),]
   pca_res  <- prcomp(t(exp))
   per_sdv <- round(pca_res$sdev/sum(pca_res$sdev),4)*100
   df_pca <- data.frame('PC1'=pca_res$x[,1],'PC2'=pca_res$x[,2],'Condition'=grp$condition)
@@ -327,14 +300,12 @@ plot_pca_2pc <- function(exp,grp){
 }
 
 plot_pca_3pc <- function(exp,grp){
-  if(sum(colnames(exp)!=rownames(grp))>0){
-    warning('colnames of expression matrix must be identical as rownames of group table')
-  }
+  grp <- grp[colnames(exp),]
   df_pca <- prcomp(t(exp))
   par(mfrow=c(3,3))
   for(i in 1:3){
     for(j in 1:3){
-      plot_pca(i,j,df_pca,col = factor(grp$condition))
+      plot_pca(i,j,df_pca,col = factor(grp[,2]),pch=factor(grp[,1]))
     }
   }
 }
