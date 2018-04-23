@@ -223,6 +223,11 @@ get_sample_csv <- function(sample_path){
 #'         p by m+4 matrix for p genes across m types of treatments and p-value, LR,logCPM and FDR
 edgeR_wrapper <- function(cnt,grp_table,combine_fdr = F,w = NULL,CommonDisp = NULL,TagwiseDisp = NULL){
   library(edgeR)
+  if(sum(rownames(grp_table) %in% colnames(cnt)) < nrow(grp_table)){
+    warning('rownames in group table not compatible with colnames in count table')
+    return(0)
+  }
+  cnt <- cnt[,rownames(grp_table)]
   design <- model.matrix(~condition,data = grp_table)
   # add RUV batch effect correction when w exists
   if(!is.null(w))  design <- cbind(design,w)
