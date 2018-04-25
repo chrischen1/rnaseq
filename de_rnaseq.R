@@ -233,6 +233,7 @@ edgeR_wrapper <- function(cnt,grp_table,combine_fdr = F,w = NULL,CommonDisp = NU
   # add RUV batch effect correction when w exists
   if(!is.null(w))  design <- cbind(design,w)
   y <- DGEList(counts=cnt, group=grp_table$condition)
+  y <- calcNormFactors(y)
   # Calculate overall dispersions when called first time
   if(is.null(CommonDisp)){
     y <- estimateGLMCommonDisp(y, design)
@@ -250,7 +251,6 @@ edgeR_wrapper <- function(cnt,grp_table,combine_fdr = F,w = NULL,CommonDisp = NU
   }
   # only anova-like FDR/Pvalues is required
   if(combine_fdr){
-    y <- calcNormFactors(y)
     fit <- glmFit(y, design)
     lrt <- glmLRT(fit, coef=2:(ncol(design)))
     lrt_tab <- topTags(lrt,n = Inf)$table[rownames(cnt),]
