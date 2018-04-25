@@ -213,7 +213,7 @@ get_sample_csv <- function(sample_path){
 #' @param cnt p by n matrix for p genes across n samples
 #' @param grp_table dataframe with 3 columns: group, condition and control
 #'  group: contains information which treatment samples will be compared against control cases in each group
-#'  condition: indicates type of treatment, replicates have same condition
+#'  condition: indicates type of treatment, replicates have same condition, do NOT use numbers only.
 #'  control: TRUE for controls and FALSE for treatments
 #'  order of well in samples annotation must be the same as the columns in count table
 #' @param combine_fdr T for combine FDR and p-values with group and F for compute pairwisely

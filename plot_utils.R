@@ -309,3 +309,12 @@ plot_pca_3pc <- function(exp,grp){
     }
   }
 }
+
+# param: df: a dataframe with 3 cloumns, V1 is name of enriched catagory, V2 is -log10 p adjusted and V3 is count of genes in the pathway
+barplot_enrichment <- function(df){
+  library(ggplot2)
+  g <- ggplot(data=df, aes(x=V1,y=V2)) +geom_bar(stat="identity",fill="cornflowerblue")+ xlab("") + ylab("-Log10 adjusted pvalue")+theme(axis.title.y = element_text(size=16))+
+    geom_text(aes(label=V3), hjust=1.0,vjust=1.2, color="white",position = position_dodge(1), size=4.5) +coord_flip()
+  return(g)
+}
+
