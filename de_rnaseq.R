@@ -227,6 +227,7 @@ edgeR_wrapper <- function(cnt,grp_table,combine_fdr = F,w = NULL,CommonDisp = NU
     warning('rownames in group table not compatible with colnames in count table')
     return(0)
   }
+  grp_table$condition <- as.character(grp_table$condition)
   cnt <- cnt[,rownames(grp_table)]
   design <- model.matrix(~condition,data = grp_table)
   # add RUV batch effect correction when w exists
