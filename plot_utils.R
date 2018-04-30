@@ -291,7 +291,11 @@ plot_pca <- function(i,j,df_pca,col,pch=1){
 
 plot_pca_2pc <- function(exp,grp){
   library(ggplot2)
-  grp <- grp[rownames(exp),]
+  if(sum(colnames(exp)%in%rownames(grp))!=nrow(grp)){
+    warning('row names of group table is different with colnames of expression matrix')
+    return(0)
+  }
+  exp <- exp[,rownames(grp)]
   pca_res  <- prcomp(t(exp))
   per_sdv <- round(pca_res$sdev/sum(pca_res$sdev),4)*100
   df_pca <- data.frame('PC1'=pca_res$x[,1],'PC2'=pca_res$x[,2],'Condition'=grp$condition)
