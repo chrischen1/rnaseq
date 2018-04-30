@@ -523,8 +523,8 @@ enrichment_circus <-function (data, title, space, gene.order, gene.size, gene.sp
       scale_fill_gradient2("logFC", space = "Lab", low = lfc.col[3], 
                            mid = lfc.col[2], high = lfc.col[1], guide = guide_colorbar(title.position = "top", 
                                                                                        title.hjust = 0.5), breaks = c(min(df_genes$logFC), 
-                                                                                                                      max(df_genes$logFC)), labels = c(round(min(df_genes$logFC)), 
-                                                                                                                                                       round(max(df_genes$logFC)))) + theme(legend.position = "bottom", 
+                                                                                                                      max(df_genes$logFC)), labels = c(round(min(df_genes$logFC),2), 
+                                                                                                                                                       round(max(df_genes$logFC),2))) + theme(legend.position = "bottom", 
                                                                                                                                                                                             legend.background = element_rect(fill = "transparent"), 
                                                                                                                                                                                             legend.box = "horizontal", legend.direction = "horizontal")
   }
@@ -573,5 +573,19 @@ check_chord <- function(mat, limit){
   
   mat <- check_chord(mat, limit)
   return(mat)
+}
+
+enrichment_parser <- function(mat,logfc,idx = 1:10){
+  mat <- mat[idx,]
+  all_genes <- strsplit(mat$SYMBOL,'/')
+  all_genes_uniq <- unique(unlist(all_genes))
+  res_mat <- matrix(0,nrow = length(all_genes_uniq),ncol = nrow(mat)+1)
+  rownames(res_mat) <- all_genes_uniq
+  colnames(res_mat) <- c(mat$Description,'logFC')
+  for(i in 1:nrow(mat)){
+    res_mat[all_genes[[i]],i] <- 1
+  }
+  res_mat[,ncol(res_mat)] <- logfc[rownames(res_mat)]
+  return(res_mat)
 }
 
