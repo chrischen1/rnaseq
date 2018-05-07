@@ -593,3 +593,26 @@ enrichment_parser <- function(mat,logfc,idx = 1:10){
   return(res_mat)
 }
 
+rle_plot <- function(x,grp){
+  library(ggplot2)
+  library(reshape2)
+  m <- log2(x/apply(x, 1, median))
+  m1 <- melt(m)
+  m1 <- cbind.data.frame(m1,'condition'=grp$condition[m1$Var2],stringsAsFactors=F)
+  g <- ggplot(m1, aes(x=Var2, y=value, fill=condition)) +geom_boxplot()
+  return(g)
+}
+
+ecdf_plot <- function(x){
+  p_seq <- seq(0,1,0.2)
+  cdf <- c()
+  for(i in p_seq){
+    cdf <- c(cdf,mean(x<=i))
+  }
+  lo <- loess(cdf~p_seq)
+  plot(p_seq,cdf,xlim=c(0,1),ylim=c(0,1))
+  lines(predict(lo), col='red', lwd=2)
+}
+
+
+
