@@ -593,13 +593,14 @@ enrichment_parser <- function(mat,logfc,idx = 1:10){
   return(res_mat)
 }
 
-rle_plot <- function(x,grp){
+rle_plot <- function(x,grp,main=''){
   library(ggplot2)
   library(reshape2)
-  m <- log2(x/apply(x, 1, median))
+  x <- log2(x+1)
+  m <- x-apply(x,1,median)
   m1 <- melt(m)
   m1 <- cbind.data.frame(m1,'condition'=grp$condition[m1$Var2],stringsAsFactors=F)
-  g <- ggplot(m1, aes(x=Var2, y=value, fill=condition)) +geom_boxplot()
+  g <- ggplot(m1, aes(x=Var2, y=value, fill=condition)) +geom_boxplot()+ xlab(main)
   return(g)
 }
 
