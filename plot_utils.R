@@ -80,14 +80,14 @@ get_normal_pvalue <- function(x,test_desc){
   if(length(x) <7)return(c(test_desc,rep('no_meaningful_pval',3)))
   x[x>6] <- 6
   x[x<1/6] <- 1/6
-  x <- log2(x)
+  log2x <- log2(x)
   library(nortest)
-  pval1 <- ad.test(x)
-  pval2 <- cvm.test(x)
-  pval3 <- lillie.test(x)
+  pval1 <- ad.test(log2x)
+  pval2 <- cvm.test(log2x)
+  pval3 <- lillie.test(log2x)
 
-  res1 <- c(test_desc,pval1$p.value,pval2$p.value,pval3$p.value,mean(2^x),median(2^x))
-  names(res1) <- c('Description',pval1$method,pval2$method,pval3$method,'mean','median')
+  res1 <- c(test_desc,pval1$p.value,pval2$p.value,pval3$p.value,mean(x),median(x),sd(x))
+  names(res1) <- c('Description',pval1$method,pval2$method,pval3$method,'mean','median','sd')
   return(res1)
 }
 
