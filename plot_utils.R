@@ -45,7 +45,12 @@ normality_check = function(treatment_info) {
   }
 }
 
-
+plot_distribution_split <- function(cis_ratio,trans_ratio,left_line,right_line){
+  df <- data.frame('ratio'=c(cis_ratio,trans_ratio),'type'=c(rep('cis',length(cis_ratio)),rep('trans',length(trans_ratio))))
+  g1 <- ggplot(df, aes(x=ratio, color=type,fill=type)) + geom_histogram(alpha=0.3, position="identity")+
+    theme(legend.position="bottom")+geom_vline(xintercept = c(left_line,1,right_line),color = "black", size=1.5)
+  return(g1)
+}
 
 
 plot_distribution = function(ratio , title_name ,left_line,right_line,mid_shift=1.1){
