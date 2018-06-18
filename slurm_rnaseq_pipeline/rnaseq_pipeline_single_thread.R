@@ -1,7 +1,8 @@
-script_dir = '/storage/htc/bdm/ccm3x/rnaseq_pipeline/'
 args <- commandArgs(TRUE)
 source(args[1])
+
 source('https://raw.githubusercontent.com/chrischen1/rnaseq/master/de_rnaseq.R')
+script_dir = '/storage/htc/bdm/ccm3x/rnaseq_pipeline/'
 
 rawdata_path <- paste(project_dir,'rawdata/',sep = '')
 trim_data_path <- paste(project_dir,'trimdata/',sep = '')

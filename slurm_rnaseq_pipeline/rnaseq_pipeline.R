@@ -1,6 +1,7 @@
-script_dir = '/storage/htc/bdm/ccm3x/rnaseq_pipeline/'
 args <- commandArgs(TRUE)
 source(args[1])
+
+script_dir = '/storage/htc/bdm/ccm3x/rnaseq_pipeline/'
 source('https://raw.githubusercontent.com/chrischen1/rnaseq/master/de_rnaseq.R')
 
 rawdata_path <- paste(project_dir,'rawdata/',sep = '')
@@ -55,8 +56,8 @@ while(slurm_running(job_name)) {
 # After trimming, start alignment
 print(paste(Sys.time(),'start alignment'))
 system('module load star/star-2.5.2b')
-for(i in list.files(trim_data_path,pattern = '.+.fastq$')){
-  out_path_i <- paste(alignment_result,gsub('.fastq','',i),'/',sep = '')
+for(i in list.files(trim_data_path,pattern = '.+.fastq.*')){
+  out_path_i <- paste(alignment_result,gsub('.fastq.*','',i),'/',sep = '')
   dir.create(out_path_i,showWarnings = F)
   infile <- paste(trim_data_path,i,sep = '')
   system(paste('sbatch -J ',job_name,' ',script_dir,'P3_alignment_with_star.sbatch ',ref_genome,' ',infile,' ',out_path_i,sep = ''))
