@@ -45,10 +45,16 @@ normality_check = function(treatment_info) {
   }
 }
 
-plot_distribution_split <- function(cis_ratio,trans_ratio,left_line,right_line){
+plot_distribution_split <- function(cis_ratio,trans_ratio,left_line,right_line,title_name=''){
   df <- data.frame('ratio'=c(cis_ratio,trans_ratio),'type'=c(rep('cis',length(cis_ratio)),rep('trans',length(trans_ratio))))
-  g1 <- ggplot(df, aes(x=ratio, color=type,fill=type)) + geom_histogram(alpha=0.3, position="identity")+
-    theme(legend.position="bottom")+geom_vline(xintercept = c(left_line,1,right_line),color = "black", size=1.5)
+  g <- ggplot(df, aes(x=ratio, color=type,fill=type)) + geom_histogram(alpha=0.3, position="identity")+
+    theme(legend.position="bottom")+geom_vline(xintercept = c(left_line,1,right_line),color = "black", size=0.5)+
+    labs(title=title_name, x="Ratio", y ="Frequency")+
+    theme(plot.title = element_text(color="#666666", face="bold", size=35)) +
+    theme(legend.text = element_text( size=22),legend.title = element_text( size=22), legend.key.size = unit(1,"cm")) +
+    theme(axis.title = element_text(color="#666666", face="bold", size=32),axis.text=element_text(size=35))+
+    theme(panel.grid.major = element_line(colour = "black", linetype = "dotted"),panel.grid.minor.y = element_blank())
+  g1 <- g + annotate("text", x = c(left_line-0.14,1.1,right_line+0.14), y = ggplot_build(g1)$layout$panel_ranges[[1]]$y.range[2]*0.98, label = sprintf("%.2f",round(c(left_line,1,right_line),2)),size=10)
   return(g1)
 }
 
