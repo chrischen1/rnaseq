@@ -287,8 +287,12 @@ plot_chromesome <- function(ratio,chr){
   return(g1)
 }
 
-plot_vol_edgeR <- function(counts,grp,plot_title='',hide_black_dots =F,cex=1,show_lines=T,pval_plot=F){
+plot_vol_edgeR <- function(counts,grp,plot_title='',hide_black_dots =F,cex=1,show_lines=T,pval_plot=F,gene_keep=NULL){
   de1 <- edgeR_wrapper(counts[,rownames(grp)],grp)
+  if(!is.null(gene_keep)){
+    de1 <- de1[gene_keep,]
+    counts <- counts[gene_keep,]
+  }
   if(!pval_plot){
     plot_volcano(Fold_Change = 2^(de1[,3]),P_Value = de1[,1],show_lines = show_lines,hide_black_dots = hide_black_dots,cex=cex,Expre = apply(counts, 1, mean),plot_title=plot_title)
   }else{
