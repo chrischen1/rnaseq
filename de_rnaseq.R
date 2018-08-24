@@ -221,7 +221,54 @@ get_sample_csv <- function(sample_path){
 #' @param CommonDisp and TagwiseDisp used internally for passing overal dispersion to comparisons without replicates
 #' @return list of 3 if combine_fdr = F: pmat,fdr_mat and logFC: all are p by m matrix for p genes across m types of treatments
 #'         p by m+4 matrix for p genes across m types of treatments and p-value, LR,logCPM and FDR
-edgeR_wrapper <- function(cnt,grp_table,combine_fdr = F,w = NULL,CommonDisp = NULL,TagwiseDisp = NULL){
+edgeR_wrapper <- function(cnt,grp_table,w = NULL){
+  return_list <- list()
+  library(edgeR)
+  if(sum(rownames(grp_table) %in% colnames(cnt)) < nrow(grp_table)){
+    warning('rownames in group table not compatible with colnames in count table')
+    return(0)
+  }
+  grp_table$condition <- as.character(grp_table$condition)
+  grp_table$group <- as.character(grp_table$group)
+  
+  cnt <- cnt[,rownames(grp_table)]
+  design <- model.matrix(~condition,data = grp_table)
+  # add RUV batch effect correction when w exists
+  if(!is.null(w))  design <- cbind(design,w)
+  y <- DGEList(counts=cnt, group=grp_table$condition)
+  y <- calcNormFactors(y)
+  # Calculate overall dispersions when called first time
+  y <- estimateGLMCommonDisp(y, design)
+  y <- estimateGLMTagwiseDisp(y, design)
+  CommonDisp <- y$common.dispersion
+  TagwiseDisp <- y$tagwise.dispersion
+  for(group_slt in unique(grp_table$group)){
+    grp_table_slt <- grp_table[grp_table$group==group_slt,]
+    colname_control <- rownames(grp_table_slt)[grp_table_slt$control]
+    for(condition_slt in unique(grp_table_slt$condition[!grp_table_slt$control])){
+      colname_treatment <- rownames(grp_table_slt)[grp_table_slt$condition==condition_slt]
+      grp_slt <- c(rep('control',length(colname_control)),rep('treatment',length(colname_treatment)))
+      y_slt <- DGEList(counts = cnt[,c(colname_control,colname_treatment)],group  = grp_slt)
+      design_slt <- model.matrix(~grp_slt,data=data.frame(grp_slt,stringsAsFactors = F))
+      
+      if(length(colname_control)==1 & length(colname_treatment)==1){
+        # When both control and treatment lacking replicates, use overall dispersion instead
+        y_slt$common.dispersion <- CommonDisp
+        y_slt$tagwise.dispersion <- TagwiseDisp
+      }else{
+        y_slt <- estimateGLMCommonDisp(y_slt, design_slt)
+        y_slt <- estimateGLMTagwiseDisp(y_slt, design_slt)
+      }
+      fit <- glmFit(y_slt, design_slt)
+      lrt <- glmLRT(fit, coef=2:(ncol(design_slt)))
+      lrt_tab <- topTags(lrt,n = Inf)$table[rownames(cnt),]
+      return_list[[paste(group_slt,condition_slt,sep = '.')]] <- lrt_tab
+    }
+  }
+  return(return_list)
+}
+
+edgeR_wrapper1 <- function(cnt,grp_table,combine_fdr = F,w = NULL,CommonDisp = NULL,TagwiseDisp = NULL){
   library(edgeR)
   if(sum(rownames(grp_table) %in% colnames(cnt)) < nrow(grp_table)){
     warning('rownames in group table not compatible with colnames in count table')
