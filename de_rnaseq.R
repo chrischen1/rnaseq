@@ -218,10 +218,8 @@ get_sample_csv <- function(sample_path){
 #'  order of well in samples annotation must be the same as the columns in count table
 #' @param combine_fdr T for combine FDR and p-values with group and F for compute pairwisely
 #' @param w n by p matrix for n samples and p factors for batch effect correction from RUVSeq
-#' @param CommonDisp and TagwiseDisp used internally for passing overal dispersion to comparisons without replicates
-#' @return list of 3 if combine_fdr = F: pmat,fdr_mat and logFC: all are p by m matrix for p genes across m types of treatments
-#'         p by m+4 matrix for p genes across m types of treatments and p-value, LR,logCPM and FDR
-edgeR_wrapper <- function(cnt,grp_table,w = NULL){
+#' @return a list, each element is a matrix containing p-value, LR,logCPM, LR and FDR for each group.treatment
+edgeR_wrapper <- function(cnt,grp_table,w = NULL,combine_fdr = F){
   return_list <- list()
   library(edgeR)
   if(sum(rownames(grp_table) %in% colnames(cnt)) < nrow(grp_table)){
@@ -240,6 +238,13 @@ edgeR_wrapper <- function(cnt,grp_table,w = NULL){
   # Calculate overall dispersions when called first time
   y <- estimateGLMCommonDisp(y, design)
   y <- estimateGLMTagwiseDisp(y, design)
+  if(combine_fdr){
+    fit <- glmFit(y, design)
+    lrt <- glmLRT(fit, coef=2:(ncol(design)))
+    lrt_tab <- topTags(lrt,n = Inf)$table[rownames(cnt),]
+    colnames(lrt_tab) <- gsub('logFC.condition','',colnames(lrt_tab))
+    return(lrt_tab)
+  }
   CommonDisp <- y$common.dispersion
   TagwiseDisp <- y$tagwise.dispersion
   for(group_slt in unique(grp_table$group)){
