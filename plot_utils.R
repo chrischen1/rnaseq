@@ -1,4 +1,5 @@
 
+
 modify_ylab <- function(y_labs){
   for(i in 1:length(y_labs)){
     y <- as.numeric(y_labs[i])
@@ -82,7 +83,7 @@ plot_distribution = function(ratio , title_name ,left_line,right_line,max_ratio 
     geom_vline(xintercept = c(left_line,1,right_line),color = "black", size=1.5)+theme(plot.title = element_text(hjust = 0.5))
   return(g1)
 }
-  
+
 plot_distribution2 = function(ratio , title_name ,left_line,right_line,mid_shift=1.1){
   ratio[ratio>6]=6
   library(ggplot2)
@@ -121,7 +122,7 @@ get_normal_pvalue <- function(x,test_desc){
   pval1 <- ad.test(log2x)
   pval2 <- cvm.test(log2x)
   pval3 <- lillie.test(log2x)
-
+  
   res1 <- c(test_desc,pval1$p.value,pval2$p.value,pval3$p.value,mean(x),median(x),sd(x))
   names(res1) <- c('Description',pval1$method,pval2$method,pval3$method,'mean','median','sd')
   return(res1)
@@ -164,23 +165,23 @@ plot_volcano <- function(Fold_Change,Expre,P_Value,plot_title='',left=0.67,right
     plot(log2(Fold_Change), log2(Expre),cex=cex,main=plot_title, pch=20, xaxt="n", xlab= '', ylab="",cex.lab=1.8, xlim=c(-xlim,xlim), ylim=c(0,20),cex.axis=1.8)
   }
   axis(1, at = seq(-4,4, by = 0.5), las=2,cex.axis=1.8)
-  title(xlab="log"["2"]~"(Ratio)", line=4, cex.lab=1.8)
+  title(xlab="log"["2"]~"(Fold Change)", line=4, cex.lab=1.8)
   title(ylab=("log"["2"]~"(S Expression)"), line=2, cex.lab=1.8)
   #lines
   if(show_lines){
-    abline(v=log2(1.5),lty=3,lwd=5,col='black')
-    text(log2(right),0, paste("",right), col = "black", adj = c(0, -.1),cex=1.5)
-    abline(v=log2(2/3),lty=3,lwd=5,col='black')
-    text(log2(left),0, paste("",left), col = "black", adj = c(0, -.1),cex=1.5)
+    abline(v=log2(right),lty=3,lwd=5,col='black')
+    text(log2(right),0, paste("",right), col = "black", adj = c(0, -.1),cex=0.5*cex)
+    abline(v=log2(left),lty=3,lwd=5,col='black')
+    text(log2(left),0, paste("",left), col = "black", adj = c(0, -.1),cex=0.5*cex)
   }
   abline(v=log2(1),lty=3,lwd=5,col='black')
   
-
+  
   up_ind <- P_Value<.05 & log2(Fold_Change) > 1
   down_ind <- P_Value<.05 & log2(Fold_Change) < -1
   
-  points(log2(Fold_Change)[up_ind], log2(Expre)[up_ind], pch=20, col="red",cex=cex)
-  points(log2(Fold_Change)[down_ind], log2(Expre)[down_ind], pch=20, col="green",cex=cex)
+  points(log2(Fold_Change)[up_ind], log2(Expre)[up_ind], pch=20, col="red",cex=0.5*cex)
+  points(log2(Fold_Change)[down_ind], log2(Expre)[down_ind], pch=20, col="green",0.5*cex=cex)
 }
 
 plot_volcano_pairs <- function(Fold_Change,Expre,P_Value,cis_genes,plot_title='',left=0.67,right=1.5,hide_black_dots =F,show_lines=T,cex=1,xlim=6,ylim=20){
@@ -188,7 +189,7 @@ plot_volcano_pairs <- function(Fold_Change,Expre,P_Value,cis_genes,plot_title=''
   plot_volcano(Fold_Change = Fold_Change[cis_genes],plot_title='cis',Expre = sum_expre[cis_genes],P_Value = P_Value[cis_genes])
   plot_volcano(Fold_Change = Fold_Change[trans_genes],plot_title='trans',Expre = sum_expre[trans_genes],P_Value = P_Value[trans_genes])
 }
-  
+
 plot_volcano_pval <- function(Fold_Change,P_Value,plot_title='',left=0.67,right=1.5,hide_black_dots =F,show_lines=T,cex=2,col_cutoff=1,xlim=6,ylim=20){
   # Red indicates P_Value<0.05 and log2Fold_Change<-1, green is P_Value<0.05 and log2Fold_Change>1)
   # red indicates up regulated, green is downregulated
@@ -309,7 +310,7 @@ plot_vol_edgeR <- function(counts,grp,plot_title='',hide_black_dots =F,cex=1,sho
     
   }
 }
-       
+
 plot_pca <- function(i,j,df_pca,col,pch=1){
   if(i==j){
     plot(df_pca$x[,i], df_pca$x[,j],col='white',xlab = '',ylab = '',xaxt='n',yaxt='n')
@@ -317,7 +318,7 @@ plot_pca <- function(i,j,df_pca,col,pch=1){
   }else{
     per_sdv <- round(df_pca$sdev/sum(df_pca$sdev),4)*100
     plot(df_pca$x[,j], df_pca$x[,i],col = col,pch = as.numeric(pch),xlab = paste('PC',j,' ',per_sdv[j],'%',sep = ''),ylab = paste('PC',i,' ',per_sdv[i],'%',sep = ''))
-
+    
   }
 }
 
@@ -561,8 +562,8 @@ enrichment_circus <-function (data, title, space, gene.order, gene.size, gene.sp
                                                                                        title.hjust = 0.5), breaks = c(min(df_genes$logFC), 
                                                                                                                       max(df_genes$logFC)), labels = c(round(min(df_genes$logFC),2), 
                                                                                                                                                        round(max(df_genes$logFC),2))) + theme(legend.position = "bottom", 
-                                                                                                                                                                                            legend.background = element_rect(fill = "transparent"), 
-                                                                                                                                                                                            legend.box = "horizontal", legend.direction = "horizontal")
+                                                                                                                                                                                              legend.background = element_rect(fill = "transparent"), 
+                                                                                                                                                                                              legend.box = "horizontal", legend.direction = "horizontal")
   }
   else {
     g + geom_polygon(data = df_genes, aes(x, y, group = id), 
@@ -646,6 +647,3 @@ ecdf_plot <- function(x){
   plot(p_seq,cdf,xlim=c(0,1),ylim=c(0,1))
   lines(predict(lo), col='red', lwd=2)
 }
-
-
-
