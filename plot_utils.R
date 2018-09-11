@@ -165,7 +165,7 @@ plot_volcano <- function(Fold_Change,Expre,P_Value,plot_title='',left=0.67,right
   }
   axis(1, at = seq(-4,4, by = 0.5), las=2,cex.axis=1.8)
   title(xlab="log"["2"]~"(Ratio)", line=4, cex.lab=1.8)
-  title(ylab=("log"["2"]~"(Avg. Expression)"), line=2, cex.lab=1.8)
+  title(ylab=("log"["2"]~"(S Expression)"), line=2, cex.lab=1.8)
   #lines
   if(show_lines){
     abline(v=log2(1.5),lty=3,lwd=5,col='black')
