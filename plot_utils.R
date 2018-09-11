@@ -185,8 +185,8 @@ plot_volcano <- function(Fold_Change,Expre,P_Value,plot_title='',left=0.67,right
 
 plot_volcano_pairs <- function(Fold_Change,Expre,P_Value,cis_genes,plot_title='',left=0.67,right=1.5,hide_black_dots =F,show_lines=T,cex=1,xlim=6,ylim=20){
   trans_genes <- names(Fold_Change)[!names(Fold_Change)%in%cis_genes]
-  g_cis <- plot_volcano(Fold_Change = Fold_Change[cis_genes],plot_title='cis',Expre = sum_expre[cis_genes],P_Value = de1$FDR[cis_genes])
-  g_trans <- plot_volcano(Fold_Change = Fold_Change[trans_genes],plot_title='trans',Expre = sum_expre[trans_genes],P_Value = de1$FDR[trans_genes])
+  g_cis <- plot_volcano(Fold_Change = Fold_Change[cis_genes],plot_title='cis',Expre = sum_expre[cis_genes],P_Value = P_Value[cis_genes])
+  g_trans <- plot_volcano(Fold_Change = Fold_Change[trans_genes],plot_title='trans',Expre = sum_expre[trans_genes],P_Value = P_Value[trans_genes])
   g <- multiplot(plotlist = list(g_cis,g_trans))
   return(g)
 }
