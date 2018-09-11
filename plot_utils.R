@@ -171,18 +171,19 @@ plot_volcano <- function(Fold_Change,Expre,P_Value,plot_title='',left_line=0.67,
   #lines
   if(show_lines){
     abline(v=log2(right_line),lty=3,lwd=5,col='black')
-    text(log2(right_line),0, paste("",right_line), col = "black", adj = c(0, -.1),cex=0.5*cex)
+    text(log2(right_line),0, paste("",right_line), col = "black", adj = c(0, -.1),cex=1.5*cex)
     abline(v=log2(left_line),lty=3,lwd=5,col='black')
-    text(log2(left_line),0, paste("",left_line), col = "black", adj = c(0, -.1),cex=0.5*cex)
+    text(log2(left_line)-0.4,0, paste("",left_line), col = "black", adj = c(0, -.1),cex=1.5*cex)
   }
   abline(v=log2(1),lty=3,lwd=5,col='black')
+  text(0,0, paste("",0), col = "black", adj = c(0, -.1),cex=1.5*cex)
   
   
   up_ind <- P_Value<.05 & log2(Fold_Change) > 1
   down_ind <- P_Value<.05 & log2(Fold_Change) < -1
   
-  points(log2(Fold_Change)[up_ind], log2(Expre)[up_ind], pch=20, col="red",cex=0.5*cex)
-  points(log2(Fold_Change)[down_ind], log2(Expre)[down_ind], pch=20, col="green",cex=0.5*cex)
+  points(log2(Fold_Change)[up_ind], log2(Expre)[up_ind], pch=20, col="red",cex=cex)
+  points(log2(Fold_Change)[down_ind], log2(Expre)[down_ind], pch=20, col="green",cex=cex)
 }
 
 plot_volcano_pairs <- function(Fold_Change,Expre,P_Value,cis_genes,plot_title='',left=0.67,right=1.5,hide_black_dots =F,show_lines=T,cex=1,xlim=6,ylim=20){
