@@ -152,7 +152,7 @@ plot_distribution_pairs <- function(r,cis_genes,title_name = '',left_line = 0.67
   return(g)
 }
 
-plot_volcano <- function(Fold_Change,Expre,P_Value,plot_title='',left=0.67,right=1.5,hide_black_dots =F,show_lines=T,cex=1,xlim=6,ylim=20){
+plot_volcano <- function(Fold_Change,Expre,P_Value,plot_title='',left=0.67,right=1.5,hide_black_dots =F,show_lines=T,cex=2,xlim=6,ylim=20){
   # Red indicates P_Value<0.05 and log2Fold_Change<-1, green is P_Value<0.05 and log2Fold_Change>1)
   # red indicates up regulated, green is downregulated
   
@@ -191,7 +191,7 @@ plot_volcano_pairs <- function(Fold_Change,Expre,P_Value,cis_genes,plot_title=''
   return(g)
 }
   
-plot_volcano_pval <- function(Fold_Change,P_Value,plot_title='',left=0.67,right=1.5,hide_black_dots =F,show_lines=T,cex=1,col_cutoff=1,xlim=6,ylim=20){
+plot_volcano_pval <- function(Fold_Change,P_Value,plot_title='',left=0.67,right=1.5,hide_black_dots =F,show_lines=T,cex=2,col_cutoff=1,xlim=6,ylim=20){
   # Red indicates P_Value<0.05 and log2Fold_Change<-1, green is P_Value<0.05 and log2Fold_Change>1)
   # red indicates up regulated, green is downregulated
   
