@@ -65,8 +65,25 @@ plot_distribution_split <- function(cis_ratio,trans_ratio,left_line,right_line,t
   return(g1)
 }
 
-
-plot_distribution = function(ratio , title_name ,left_line,right_line,mid_shift=1.1){
+plot_distribution = function(ratio , title_name ,left_line,right_line,max_ratio = 6){
+  ratio[ratio>max_ratio]=max_ratio
+  library(ggplot2)
+  df = data.frame(ratio=ratio)
+  summary(ratio)
+  xlabel = c(sprintf("%.1f", round(seq(0,5.85,0.5),2)),'>6.0')
+  g1<-ggplot(df, aes(x=ratio)) + geom_histogram(binwidth=0.05, color="black", fill="cornflowerblue") +
+    geom_freqpoly(binwidth=0.05, size=1,col="gray24")+ theme_bw()  +
+    # scale_fill_gradient("Frequency",low = "green", high = "red") +
+    labs(title=title_name, x="Ratio", y ="Frequency")+
+    theme(plot.title = element_text(color="#666666", face="bold", size=35)) +
+    theme(legend.text = element_text( size=22),legend.title = element_text( size=22), legend.key.size = unit(1,"cm")) +
+    theme(axis.title = element_text(color="#666666", face="bold", size=32),axis.text=element_text(size=35))+
+    theme(panel.grid.major = element_line(colour = "black", linetype = "dotted"),panel.grid.minor.y = element_blank())+
+    geom_vline(xintercept = c(left_line,1,right_line),color = "black", size=1.5)+theme(plot.title = element_text(hjust = 0.5))
+  return(g1)
+}
+  
+plot_distribution2 = function(ratio , title_name ,left_line,right_line,mid_shift=1.1){
   ratio[ratio>6]=6
   library(ggplot2)
   df = data.frame(ratio=ratio)
@@ -110,44 +127,30 @@ get_normal_pvalue <- function(x,test_desc){
   return(res1)
 }
 
-
-
 multiplot <- function(..., plotlist=NULL, file, cols=1, layout=NULL) {
   library(grid)
-  
-  # Make a list from the ... arguments and plotlist
   plots <- c(list(...), plotlist)
-  
   numPlots = length(plots)
-  
-  # If layout is NULL, then use 'cols' to determine layout
   if (is.null(layout)) {
-    # Make the panel
-    # ncol: Number of columns of plots
-    # nrow: Number of rows needed, calculated from # of cols
-    layout <- matrix(seq(1, cols * ceiling(numPlots/cols)),
-                     ncol = cols, nrow = ceiling(numPlots/cols))
+    layout <- matrix(seq(1, cols * ceiling(numPlots/cols)),ncol = cols, nrow = ceiling(numPlots/cols))
   }
-  
   if (numPlots==1) {
     print(plots[[1]])
-    
   } else {
-    # Set up the page
     grid.newpage()
     pushViewport(viewport(layout = grid.layout(nrow(layout), ncol(layout))))
-    
-    # Make each plot, in the correct location
     for (i in 1:numPlots) {
-      # Get the i,j matrix positions of the regions that contain this subplot
       matchidx <- as.data.frame(which(layout == i, arr.ind = TRUE))
-      
-      print(plots[[i]], vp = viewport(layout.pos.row = matchidx$row,
-                                      layout.pos.col = matchidx$col))
+      print(plots[[i]], vp = viewport(layout.pos.row = matchidx$row,layout.pos.col = matchidx$col))
     }
   }
 }
 
+plot_distribution_pairs <- function(r,cis_genes,title_name = '',left_line = 0.67,right_line = 1.5,max_ratio = 6){
+  g <- multiplot(plotlist = list(plot_distribution(r[cis_genes],title_name = 'Cis genes',left_line = left_line,right_line = right_line,max_ratio = max_ratio),
+                                 plot_distribution(r[!names(r)%in%cis_genes],title_name = 'Trans genes',left_line = left_line,right_line = right_line,max_ratio = max_ratio)))
+  return(g)
+}
 
 plot_volcano <- function(Fold_Change,Expre,P_Value,plot_title='',left=0.67,right=1.5,hide_black_dots =F,show_lines=T,cex=1,xlim=6,ylim=20){
   # Red indicates P_Value<0.05 and log2Fold_Change<-1, green is P_Value<0.05 and log2Fold_Change>1)
