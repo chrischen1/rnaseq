@@ -80,6 +80,9 @@ plot_distribution = function(ratio , title_name ,left_line,right_line,max_ratio 
     theme(axis.title = element_text(color="#666666", face="bold", size=32),axis.text=element_text(size=35))+
     theme(panel.grid.major = element_line(colour = "black", linetype = "dotted"),panel.grid.minor.y = element_blank())+
     geom_vline(xintercept = c(left_line,1,right_line),color = "black", size=1.5)+theme(plot.title = element_text(hjust = 0.5))
+  g1 = g1 + annotate("text", x = c(left_line-0.14,1.1,right_line+0.14), 
+                     y = ggplot_build(g1)$layout$panel_params[[1]]$y.range[2]*0.98, 
+                     label = sprintf("%.2f",round(c(left_line,1,right_line),2)),size=10)
   return(g1)
 }
 
@@ -152,26 +155,25 @@ plot_distribution_pairs <- function(r,cis_genes,title_name = '',left_line = 0.67
   return(g)
 }
 
-plot_volcano <- function(Fold_Change,Expre,P_Value,plot_title='',left=0.67,right=1.5,hide_black_dots =F,show_lines=T,cex=2,xlim=6,ylim=20){
+plot_volcano <- function(Fold_Change,Expre,P_Value,plot_title='',left_line=0.67,right_line=1.5,hide_black_dots =F,show_lines=T,cex=1,xlim=6,ylim=20){
   # Red indicates P_Value<0.05 and log2Fold_Change<-1, green is P_Value<0.05 and log2Fold_Change>1)
   # red indicates up regulated, green is downregulated
   
   if(hide_black_dots){
     plot(log2(Fold_Change), log2(Expre),col='white',
-         cex = cex, main=plot_title, pch=20,xaxt="n", xlab= '', ylab="",cex.lab=1.8, xlim=c(-xlim,xlim), ylim=c(0,xlim),cex.axis=1.8)
+         cex.main=2, main=plot_title, pch=20,xaxt="n", xlab= '', ylab="",cex.lab=1.8, xlim=c(-xlim,xlim), ylim=c(0,xlim),cex.axis=1.8)
     
   }else{
     plot(log2(Fold_Change), log2(Expre),cex=cex,main=plot_title, pch=20, xaxt="n", xlab= '', ylab="",cex.lab=1.8, xlim=c(-xlim,xlim), ylim=c(0,20),cex.axis=1.8)
   }
-  axis(1, at = seq(-4,4, by = 0.5), las=2,cex.axis=1.8)
   title(xlab="log"["2"]~"(Fold Change)", line=4, cex.lab=1.8)
   title(ylab=("log"["2"]~"(S Expression)"), line=2, cex.lab=1.8)
   #lines
   if(show_lines){
-    abline(v=log2(right),lty=3,lwd=5,col='black')
-    text(log2(right),0, paste("",right), col = "black", adj = c(0, -.1),cex=0.5*cex)
-    abline(v=log2(left),lty=3,lwd=5,col='black')
-    text(log2(left),0, paste("",left), col = "black", adj = c(0, -.1),cex=0.5*cex)
+    abline(v=log2(right_line),lty=3,lwd=5,col='black')
+    text(log2(right_line),0, paste("",right_line), col = "black", adj = c(0, -.1),cex=0.5*cex)
+    abline(v=log2(left_line),lty=3,lwd=5,col='black')
+    text(log2(left_line),0, paste("",left_line), col = "black", adj = c(0, -.1),cex=0.5*cex)
   }
   abline(v=log2(1),lty=3,lwd=5,col='black')
   
