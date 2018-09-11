@@ -1,5 +1,4 @@
 
-
 modify_ylab <- function(y_labs){
   for(i in 1:length(y_labs)){
     y <- as.numeric(y_labs[i])
@@ -181,7 +180,7 @@ plot_volcano <- function(Fold_Change,Expre,P_Value,plot_title='',left=0.67,right
   down_ind <- P_Value<.05 & log2(Fold_Change) < -1
   
   points(log2(Fold_Change)[up_ind], log2(Expre)[up_ind], pch=20, col="red",cex=0.5*cex)
-  points(log2(Fold_Change)[down_ind], log2(Expre)[down_ind], pch=20, col="green",0.5*cex=cex)
+  points(log2(Fold_Change)[down_ind], log2(Expre)[down_ind], pch=20, col="green",cex=0.5*cex)
 }
 
 plot_volcano_pairs <- function(Fold_Change,Expre,P_Value,cis_genes,plot_title='',left=0.67,right=1.5,hide_black_dots =F,show_lines=T,cex=1,xlim=6,ylim=20){
