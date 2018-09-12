@@ -171,9 +171,9 @@ plot_volcano <- function(Fold_Change,Expre,P_Value,plot_title='',left_line=0.67,
   #lines
   if(show_lines){
     abline(v=log2(right_line),lty=3,lwd=5,col='black')
-    text((right_line),0, paste0("log2",right_line), col = "black", adj = c(0, -.1),cex=1.5*cex)
+    text((right_line)+0.6,0, paste0("",right_line), col = "black", adj = c(0, -.1),cex=1.5*cex)
     abline(v=log2(left_line),lty=3,lwd=5,col='black')
-    text((left_line)-0.4,0, paste0("log2",left_line), col = "black", adj = c(0, -.1),cex=1.5*cex)
+    text((left_line)-0.6,0, paste0("log2",left_line), col = "black", adj = c(0, -.1),cex=1.5*cex)
   }
   abline(v=log2(1),lty=3,lwd=5,col='black')
   text(0,0, paste("",0), col = "black", adj = c(0, -.1),cex=1.5*cex)
