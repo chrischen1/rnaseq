@@ -166,14 +166,14 @@ plot_volcano <- function(Fold_Change,Expre,P_Value,plot_title='',left_line=0.67,
   }else{
     plot(log2(Fold_Change), log2(Expre),cex=cex,main=plot_title, pch=20, xlab= '', ylab="",cex.lab=1.8, xlim=c(-xlim,xlim), ylim=c(0,20),cex.axis=1.8)
   }
-  title(xlab="log"["2"]~"(Fold Change)", line=4, cex.lab=0.75*cex)
-  title(ylab=("log"["2"]~"(S Expression)"), line=2, cex.lab=0.75*cex)
+  title(xlab="log"["2"]~"(Fold Change)", line=4, cex.lab=0.9*cex)
+  title(ylab=("log"["2"]~"(S Expression)"), line=2, cex.lab=0.9*cex)
   #lines
   if(show_lines){
     abline(v=log2(right_line),lty=3,lwd=5,col='black')
-    text(log2(right_line),0, paste("log2",right_line), col = "black", adj = c(0, -.1),cex=1.5*cex)
+    text((right_line),0, paste0("log2",right_line), col = "black", adj = c(0, -.1),cex=1.5*cex)
     abline(v=log2(left_line),lty=3,lwd=5,col='black')
-    text(log2(left_line)-0.4,0, paste("log2",left_line), col = "black", adj = c(0, -.1),cex=1.5*cex)
+    text((left_line)-0.4,0, paste0("log2",left_line), col = "black", adj = c(0, -.1),cex=1.5*cex)
   }
   abline(v=log2(1),lty=3,lwd=5,col='black')
   text(0,0, paste("",0), col = "black", adj = c(0, -.1),cex=1.5*cex)
