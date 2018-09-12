@@ -166,8 +166,8 @@ plot_volcano <- function(Fold_Change,Expre,P_Value,plot_title='',left_line=0.67,
   }else{
     plot(log2(Fold_Change), log2(Expre),cex=cex,main=plot_title, pch=20, xlab= '', ylab="",cex.lab=1.8, xlim=c(-xlim,xlim), ylim=c(0,20),cex.axis=1.8)
   }
-  title(xlab="log"["2"]~"(Fold Change)", line=4, cex.lab=1.2*cex)
-  title(ylab=("log"["2"]~"(S Expression)"), line=2, cex.lab=1.2*cex)
+  title(xlab="log"["2"]~"(Fold Change)", line=4, cex.lab=1.35*cex)
+  title(ylab=("log"["2"]~"(S Expression)"), line=2, cex.lab=1.35*cex)
   #lines
   if(show_lines){
     abline(v=log2(right_line),lty=3,lwd=5,col='black')
