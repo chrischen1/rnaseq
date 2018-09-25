@@ -155,7 +155,7 @@ plot_distribution_pairs <- function(r,cis_genes,title_name = '',left_line = 0.67
   return(g)
 }
 
-plot_volcano <- function(Fold_Change,Expre,P_Value,plot_title='',left_line=0.67,right_line=1.5,hide_black_dots =F,show_lines=T,cex=1,xlim=6,ylim=20){
+plot_volcano <- function(Fold_Change,Expre,P_Value,plot_title='',left_line=0.67,right_line=1.5,hide_black_dots =F,show_lines=T,cex=1,xlim=6,ylim=20,col_cutoff=1){
   # Red indicates P_Value<0.05 and log2Fold_Change<-1, green is P_Value<0.05 and log2Fold_Change>1)
   # red indicates up regulated, green is downregulated
   
@@ -179,8 +179,8 @@ plot_volcano <- function(Fold_Change,Expre,P_Value,plot_title='',left_line=0.67,
   text(0,0, paste("",0), col = "black", adj = c(0, -.1),cex=1.5*cex)
   
   
-  up_ind <- P_Value<.05 & log2(Fold_Change) > 1
-  down_ind <- P_Value<.05 & log2(Fold_Change) < -1
+  up_ind <- P_Value<.05 & log2(Fold_Change) > col_cutoff
+  down_ind <- P_Value<.05 & log2(Fold_Change) < -col_cutoff
   
   points(log2(Fold_Change)[up_ind], log2(Expre)[up_ind], pch=20, col="red",cex=cex)
   points(log2(Fold_Change)[down_ind], log2(Expre)[down_ind], pch=20, col="green",cex=cex)
@@ -299,7 +299,6 @@ plot_chromesome <- function(ratio,chr){
   return(g1)
 }
 
-
 plot_vol_edgeR <- function(counts,grp,plot_title='',expre='mean',hide_black_dots =F,cex=1,show_lines=T,pval_plot=F,gene_keep=NULL,col_cutoff=0){
   de1 <- data.frame(edgeR_wrapper(counts[,rownames(grp)],grp)[[1]])
   if(!is.null(gene_keep)){
@@ -315,15 +314,15 @@ plot_vol_edgeR <- function(counts,grp,plot_title='',expre='mean',hide_black_dots
   }else if(expre=='logcpm'){
     expre <- de1$logCPM
   }
-  xlim <- max(expre)*1.2
+  ylim <- max(expre)*1.2
   if(!pval_plot){
-    plot_volcano(Fold_Change = 2^(de1$logFC),P_Value = de1$FDR,show_lines = show_lines,xlim=xlim,hide_black_dots = hide_black_dots,cex=cex,Expre = expre,plot_title=plot_title,col_cutoff=col_cutoff)
+    plot_volcano(Fold_Change = 2^(de1$logFC),P_Value = de1$FDR,show_lines = show_lines,ylim=ylim,hide_black_dots = hide_black_dots,cex=cex,Expre = expre,plot_title=plot_title,col_cutoff=col_cutoff)
   }else{
-    plot_volcano_pval(Fold_Change = 2^(de1$logFC),P_Value = de1$FDR,show_lines = show_lines,xlim=xlim,hide_black_dots = hide_black_dots,cex=cex,plot_title=plot_title,col_cutoff=col_cutoff)
+    plot_volcano_pval(Fold_Change = 2^(de1$logFC),P_Value = de1$FDR,show_lines = show_lines,ylim=ylim,hide_black_dots = hide_black_dots,cex=cex,plot_title=plot_title,col_cutoff=col_cutoff)
     
   }
 }
-  
+
 plot_pca <- function(i,j,df_pca,col,pch=1){
   if(i==j){
     plot(df_pca$x[,i], df_pca$x[,j],col='white',xlab = '',ylab = '',xaxt='n',yaxt='n')
