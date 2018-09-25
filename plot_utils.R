@@ -299,7 +299,7 @@ plot_chromesome <- function(ratio,chr){
   return(g1)
 }
 
-plot_vol_edgeR <- function(counts,grp,plot_title='',expre='mean',hide_black_dots =F,cex=1,show_lines=T,pval_plot=F,gene_keep=NULL,col_cutoff=0){
+plot_vol_edgeR <- function(counts,grp,plot_title='',rpkm=NULL,expre='mean',hide_black_dots =F,cex=1,show_lines=T,pval_plot=F,gene_keep=NULL,col_cutoff=0){
   de1 <- data.frame(edgeR_wrapper(counts[,rownames(grp)],grp)[[1]])
   if(!is.null(gene_keep)){
     de1 <- de1[gene_keep,]
@@ -307,14 +307,18 @@ plot_vol_edgeR <- function(counts,grp,plot_title='',expre='mean',hide_black_dots
   }
   if(expre=='mean'){
     expre <- apply(counts, 1, mean)
+    ylim <- max(log2(expre+0.1))*1.2
   }else if(expre=='sum'){
     expre <- apply(counts, 1, sum)
+    ylim <- max(log2(expre+0.1))*1.2
   }else if(expre=='logcpm'){
     expre <- de1$logCPM
-  }else if(expre=='logcpm'){
-    expre <- de1$logCPM
+    ylim <- max(expre)*1.2
+  }else if(expre=='rpkm'){
+    expre <- apply(rpkm, 1, mean)
+    ylim <- max(expre)*1.2
   }
-  ylim <- max(log2(expre+0.1)[!is.infinite(log2(expre+0.1))])*1.2
+  
   if(!pval_plot){
     plot_volcano(Fold_Change = 2^(de1$logFC),P_Value = de1$FDR,show_lines = show_lines,ylim=ylim,hide_black_dots = hide_black_dots,cex=cex,Expre = expre,plot_title=plot_title,col_cutoff=col_cutoff)
   }else{
