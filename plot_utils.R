@@ -161,7 +161,7 @@ plot_volcano <- function(Fold_Change,Expre,P_Value,plot_title='',left_line=0.67,
   
   if(hide_black_dots){
     plot(log2(Fold_Change), log2(Expre),col='white',
-         cex.main=2, main=plot_title, pch=20, xlab= '', ylab="",cex.lab=1.8, xlim=c(-xlim,xlim), ylim=c(0,xlim),cex.axis=1.8)
+         cex.main=2, main=plot_title, pch=20, xlab= '', ylab="",cex.lab=1.8, xlim=c(-xlim,xlim), ylim=c(0,ylim),cex.axis=1.8)
     
   }else{
     plot(log2(Fold_Change), log2(Expre),cex=cex,main=plot_title, pch=20, xlab= '', ylab="",cex.lab=1.8, xlim=c(-xlim,xlim), ylim=c(0,ylim),cex.axis=1.8)
