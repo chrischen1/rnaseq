@@ -171,12 +171,12 @@ plot_volcano <- function(Fold_Change,Expre,P_Value,plot_title='',left_line=0.67,
   #lines
   if(show_lines){
     abline(v=log2(right_line),lty=3,lwd=5,col='black')
-    text(log2(right_line)+0.6,0, paste0("",right_line), col = "black", adj = c(0, -.1),cex=1.5*cex)
+    text(log2(right_line)+0.6,ylim*0.9, paste0("",right_line), col = "black", adj = c(0, -.1),cex=1.5*cex)
     abline(v=log2(left_line),lty=3,lwd=5,col='black')
-    text(log2(left_line)-0.9,0, paste0("",left_line), col = "black", adj = c(0, -.1),cex=1.5*cex)
+    text(log2(left_line)-0.9,ylim*0.9, paste0("",left_line), col = "black", adj = c(0, -.1),cex=1.5*cex)
   }
   abline(v=log2(1),lty=3,lwd=5,col='black')
-  text(0,0, paste("",0), col = "black", adj = c(0, -.1),cex=1.5*cex)
+  text(0,ylim*0.9, paste("",0), col = "black", adj = c(0, -.1),cex=1.5*cex)
   
   
   up_ind <- P_Value<.05 & log2(Fold_Change) > col_cutoff
