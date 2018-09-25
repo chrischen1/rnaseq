@@ -300,7 +300,7 @@ plot_chromesome <- function(ratio,chr){
 }
 
 
-plot_vol_edgeR <- function(counts,grp,plot_title='',expre='mean',hide_black_dots =F,cex=1,show_lines=T,pval_plot=F,gene_keep=NULL){
+plot_vol_edgeR <- function(counts,grp,plot_title='',expre='mean',hide_black_dots =F,cex=1,show_lines=T,pval_plot=F,gene_keep=NULL,col_cutoff=0){
   de1 <- data.frame(edgeR_wrapper(counts[,rownames(grp)],grp)[[1]])
   if(!is.null(gene_keep)){
     de1 <- de1[gene_keep,]
@@ -312,12 +312,14 @@ plot_vol_edgeR <- function(counts,grp,plot_title='',expre='mean',hide_black_dots
     expre <- apply(counts, 1, sum)
   }else if(expre=='logcpm'){
     expre <- de1$logCPM
+  }else if(expre=='logcpm'){
+    expre <- de1$logCPM
   }
-  
+  xlim <- max(expre)*1.2
   if(!pval_plot){
-    plot_volcano(Fold_Change = 2^(de1$logFC),P_Value = de1$FDR,show_lines = show_lines,hide_black_dots = hide_black_dots,cex=cex,Expre = expre,plot_title=plot_title)
+    plot_volcano(Fold_Change = 2^(de1$logFC),P_Value = de1$FDR,show_lines = show_lines,xlim=xlim,hide_black_dots = hide_black_dots,cex=cex,Expre = expre,plot_title=plot_title,col_cutoff=col_cutoff)
   }else{
-    plot_volcano_pval(Fold_Change = 2^(de1$logFC),P_Value = de1$FDR,show_lines = show_lines,hide_black_dots = hide_black_dots,cex=cex,plot_title=plot_title)
+    plot_volcano_pval(Fold_Change = 2^(de1$logFC),P_Value = de1$FDR,show_lines = show_lines,xlim=xlim,hide_black_dots = hide_black_dots,cex=cex,plot_title=plot_title,col_cutoff=col_cutoff)
     
   }
 }
