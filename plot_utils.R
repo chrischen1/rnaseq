@@ -313,7 +313,7 @@ plot_vol_edgeR <- function(counts,grp,plot_title='',rpkm=NULL,expre='mean',hide_
   }else if(expre=='logcpm'){
     expre <- 2^(de1$logCPM)
   }else if(expre=='rpkm'){
-    expre <- apply(rpkm, 1, mean)
+    expre <- apply(rpkm[rownames(counts),], 1, mean)
   }
   ylim <- c(min(log2(expre+0.1))*0.8,max(log2(expre+0.1))*1.2)
   
