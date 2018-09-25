@@ -300,6 +300,7 @@ plot_chromesome <- function(ratio,chr){
 }
 
 plot_vol_edgeR <- function(counts,grp,plot_title='',rpkm=NULL,expre='mean',hide_black_dots =F,cex=1,show_lines=T,pval_plot=F,gene_keep=NULL,col_cutoff=0){
+  gene_keep <- intersect(gene_keep,rownames(counts))
   de1 <- data.frame(edgeR_wrapper(counts[,rownames(grp)],grp)[[1]])
   if(!is.null(gene_keep)){
     de1 <- de1[gene_keep,]
