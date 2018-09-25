@@ -315,7 +315,7 @@ plot_vol_edgeR <- function(counts,grp,plot_title='',rpkm=NULL,expre='mean',hide_
   }else if(expre=='rpkm'){
     expre <- apply(rpkm, 1, mean)
   }
-  ylim <- c(min(log2(expre+0.1)),max(log2(expre+0.1)))*1.2
+  ylim <- c(min(log2(expre+0.1))*0.8,max(log2(expre+0.1))*1.2)
   
   if(!pval_plot){
     plot_volcano(Fold_Change = 2^(de1$logFC),P_Value = de1$FDR,show_lines = show_lines,ylim=ylim,hide_black_dots = hide_black_dots,cex=cex,Expre = expre,plot_title=plot_title,col_cutoff=col_cutoff)
