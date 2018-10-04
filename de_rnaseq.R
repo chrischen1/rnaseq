@@ -216,10 +216,11 @@ get_sample_csv <- function(sample_path){
 #'  condition: indicates type of treatment, replicates have same condition, do NOT use numbers only.
 #'  control: TRUE for controls and FALSE for treatments
 #'  order of well in samples annotation must be the same as the columns in count table
+#' @param norm_method: Method of normalization, one if 'TMM','UQ','RLE','none'
 #' @param combine_fdr T for combine FDR and p-values with group and F for compute pairwisely
 #' @param w n by p matrix for n samples and p factors for batch effect correction from RUVSeq
 #' @return a list, each element is a matrix containing p-value, LR,logCPM, LR and FDR for each group.treatment
-edgeR_wrapper <- function(cnt,grp_table,w = NULL,combine_fdr = F){
+edgeR_wrapper <- function(cnt,grp_table,norm_method = 'TMM',w = NULL,combine_fdr = F){
   return_list <- list()
   library(edgeR)
   if(sum(rownames(grp_table) %in% colnames(cnt)) < nrow(grp_table)){
@@ -234,7 +235,7 @@ edgeR_wrapper <- function(cnt,grp_table,w = NULL,combine_fdr = F){
   # add RUV batch effect correction when w exists
   if(!is.null(w))  design <- cbind(design,w)
   y <- DGEList(counts=cnt, group=grp_table$condition)
-  y <- calcNormFactors(y)
+  y <- calcNormFactors(y,method=norm_method)
   # Calculate overall dispersions when called first time
   y <- estimateGLMCommonDisp(y, design)
   y <- estimateGLMTagwiseDisp(y, design)
@@ -255,7 +256,7 @@ edgeR_wrapper <- function(cnt,grp_table,w = NULL,combine_fdr = F){
       grp_slt <- c(rep('control',length(colname_control)),rep('treatment',length(colname_treatment)))
       y_slt <- DGEList(counts = cnt[,c(colname_control,colname_treatment)],group  = grp_slt)
       design_slt <- model.matrix(~grp_slt,data=data.frame(grp_slt,stringsAsFactors = F))
-      
+      y_slt <- calcNormFactors(y_slt,method=norm_method)
       if(length(colname_control)==1 & length(colname_treatment)==1){
         # When both control and treatment lacking replicates, use overall dispersion instead
         y_slt$common.dispersion <- CommonDisp
