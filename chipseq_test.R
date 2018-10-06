@@ -50,7 +50,7 @@ for (i in all_samples) {
 for (i in all_samples) {
   infile <- paste0(sam_data_path,i,'.sam')
   outfile <- paste0(bam_data_path,i,'.bam')
-  print(paste('sbatch /storage/htc/birchlerlab/CENH3_ChIP-seq/scripts/bash_sub.sbatch samtools view -bSF4',
+  system(paste('sbatch /storage/htc/birchlerlab/CENH3_ChIP-seq/scripts/bash_sub.sbatch samtools view -bSF4',
                infile,'>',outfile))
 }
 #merge bam
