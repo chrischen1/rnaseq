@@ -12,6 +12,7 @@ log_path = '/storage/htc/birchlerlab/CENH3_ChIP-seq/logs/'
 ref_genome_path = '/storage/htc/bdm/ref_genomes/B73/index_bowtie2'
 dir.create(trim_data_path)
 dir.create(qc_result_path)
+dir.create(sam_data_path)
 dir.create(bam_data_path)
 dir.create(bam_merge_path)
 dir.create(filter_data_path)
