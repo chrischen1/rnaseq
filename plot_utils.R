@@ -803,7 +803,16 @@ plot_setup<- function(data_dir,file,results_dir,normal_check=F){
     return(normal_check_res)
   }
 }
-                 
+ 
+line_position = function(file_name){
+  file_name <- tolower(file_name)
+  if(length(grep('trisomy',file_name))!=0 | length(grep('triploid',file_name))!=0| length(grep('duplicate_all_cis_tf_trans_target',file_name))!=0| length(grep('single_all_cis_tf_trans_target',file_name))!=0){
+    l <- list('leftline'=0.67,'rightline'=1.5)
+  }else{
+    l <- list('leftline'=0.5,'rightline'=2)
+  }
+  return(l)
+}
                     
                     
                     
