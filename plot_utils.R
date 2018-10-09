@@ -65,24 +65,61 @@ plot_distribution_split <- function(cis_ratio,trans_ratio,left_line,right_line,t
   return(g1)
 }
 
-plot_distribution = function(ratio , title_name ,left_line,right_line,max_ratio = 6){
+plot_ratio_grid <- function(data_dir,outfile,layout,include=F,prefix=NULL){
+  results_dir = ''
+  if(is.null(prefix)){
+    file_list=list.files(data_dir)
+  }else{
+    file_list=list.files(data_dir,pattern = paste0(prefix,'.+'))
+  }
+  list1 <- list()
+  for(i in 3:7){
+    g <- plot_setup(data_dir,file_list[i],results_dir)
+    list1[[length(list1)+1]] <- g[[1]]
+    list1[[length(list1)+1]] <- g[[2]]
+  }
+  for(i in 1:2){
+    g <- plot_setup(data_dir,file_list[i],results_dir)
+    list1[[length(list1)+1]] <- g
+  }
+  
+  if(include){
+    #plot Tetraploid_vs_Triploid
+    tet <- read.delim(paste(data_prefix,'1/Tetraploid.txt',sep = ''),as.is = T)
+    tri <- read.delim(paste(data_prefix,'1/Triploid.txt',sep = ''),as.is = T)
+    rownames(tet) <- tet$gene_id
+    rownames(tri) <- tri$gene_id
+    tet2 <- tet[intersect(rownames(tet),rownames(tri)),]
+    tri2 <- tri[rownames(tet2),]
+    ratio_tet_tri <- tet2$treatment/tri2$treatment
+    g <- plot_distribution(tet2$treatment/tri2$treatment,'',0.75,1.33)
+    list1[[length(list1)+1]] <- g
+  }
+  jpeg(outfile, width = 17.8, height =  13.0125, units = 'cm', res = 300)
+  multiplot(plotlist = list1,layout=layout)
+  dev.off()
+}
+
+plot_distribution = function(ratio , title_name ,left_line,right_line,max_ratio = 6,text_size=6){
   ratio[ratio>max_ratio]=max_ratio
   library(ggplot2)
-  df = data.frame(ratio=ratio)
-  summary(ratio)
-  xlabel = c(sprintf("%.1f", round(seq(0,5.85,0.5),2)),'>6.0')
-  g1<-ggplot(df, aes(x=ratio)) + geom_histogram(binwidth=0.05, color="black", fill="cornflowerblue") +
-    geom_freqpoly(binwidth=0.05, size=1,col="gray24")+ theme_bw()  +
+  df = data.frame(ratio)
+  xlabel = c(sprintf("%.1f", round(seq(0,max_ratio-0.15,0.5),2)),'>6.0')
+  g1<-ggplot(df, aes(x=ratio)) + geom_histogram(binwidth=0.05, size=0.3, color="black", fill="cornflowerblue") +
+    geom_freqpoly(binwidth=0.05, size=0.3,col="gray24")+ theme_bw()  +
+    labs(title=NULL, x=NULL, y =NULL)+
     # scale_fill_gradient("Frequency",low = "green", high = "red") +
-    labs(title=title_name, x="Ratio", y ="Frequency")+
-    theme(plot.title = element_text(color="#666666", face="bold", size=35)) +
-    theme(legend.text = element_text( size=22),legend.title = element_text( size=22), legend.key.size = unit(1,"cm")) +
-    theme(axis.title = element_text(color="#666666", face="bold", size=32),axis.text=element_text(size=35))+
-    theme(panel.grid.major = element_line(colour = "black", linetype = "dotted"),panel.grid.minor.y = element_blank())+
-    geom_vline(xintercept = c(left_line,1,right_line),color = "black", size=1.5)+theme(plot.title = element_text(hjust = 0.5))
-  g1 = g1 + annotate("text", x = c(left_line-0.14,1.1,right_line+0.14), 
-                     y = ggplot_build(g1)$layout$panel_params[[1]]$y.range[2]*0.98, 
-                     label = sprintf("%.2f",round(c(left_line,1,right_line),2)),size=10)
+    theme(plot.title = element_text(color="black", size=text_size,face="bold")) +
+    theme(legend.text = element_text( size=text_size),legend.title = element_text( size=text_size), legend.key.size = unit(1,"cm")) +
+    theme(axis.title = element_text(color="black", size=text_size),axis.text=element_text(size=text_size))+
+    theme(panel.grid.major = element_line(colour = "white", linetype = "dotted"),panel.grid.minor.y = element_blank())+
+    geom_vline(xintercept = c(left_line,1,right_line),color = "black", size=0.4)+theme(plot.title = element_text(hjust = 0.5))
+  g1 = g1 + annotate("text", x = c(0.2,1.25,2.4), 
+                     y = ggplot_build(g1)$layout$panel_params[[1]]$y.range[2]*0.88, 
+                     label = sprintf("%.2f",round(c(left_line,1,right_line),2)),size=text_size*0.3,family="sans")+
+                      theme(plot.margin = margin(0.1, 0.1, 0.1, 0.1, "cm"))+
+    scale_x_continuous(limits = c(-0.3,max_ratio+0.3),breaks = seq(0,max_ratio,0.5),  
+                       labels=xlabel,minor_breaks = seq(-0.3,max_ratio,0.1))
   return(g1)
 }
 
