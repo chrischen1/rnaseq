@@ -698,3 +698,112 @@ ecdf_plot <- function(x){
   plot(p_seq,cdf,xlim=c(0,1),ylim=c(0,1))
   lines(predict(lo), col='red', lwd=2)
 }
+
+#obs functions
+get_result_by_treatment_name = function(treatment_info) {
+  
+  control_name = treatment_info$control_name
+  treatment_name = treatment_info$treatment_name
+  cis_genes = treatment_info$cis_genes
+  split2cis = treatment_info$split2cis
+  
+  
+  #import control data
+  control_rowMeans = treatment_info$control_counts
+  head(control_rowMeans)
+  
+  #import treatment data
+  treatment_rowMeans = treatment_info$treatment_counts
+  head(treatment_rowMeans)
+  
+  #import geneid
+  GeneID = treatment_info$GeneID
+  head(GeneID)
+  
+  outputfile = treatment_info$outputfile
+  
+  left_line = treatment_info$left_line
+  right_line = treatment_info$right_line
+  
+  
+  # check if gene number is the same
+  try(if(length(control_rowMeans) != length(treatment_rowMeans)) stop("The gene id number is not equal"))
+  
+  data = get_all_summary_matrix(GeneID,control_name,treatment_name,control_rowMeans,treatment_rowMeans)
+  ratio_summary_matrix = data$ratio_summary_matrix
+  
+  filtered_ratio_summary_matrix = get_ratio_summary_matrix(ratio_summary_matrix) 
+  
+  head(filtered_ratio_summary_matrix)
+  
+  ratio = (filtered_ratio_summary_matrix[,2])/(filtered_ratio_summary_matrix[,1])  
+  if(split2cis!=1)
+  {
+      # title_name = paste('Histogram for ratio of ',treatment_name,'/',control_name,' for all genes',sep="")
+      title_name = NULL
+      ggplot1 <- plot_distribution(ratio,title_name ,left_line,right_line)
+      image_name = outputfile
+      return(ggplot1)   
+  }else{
+  
+    ## set cis genes 
+    cis_ratio_summary = filtered_ratio_summary_matrix[rownames(filtered_ratio_summary_matrix) %in% as.character(unlist(cis_genes)),]
+    cis_ratio = (cis_ratio_summary[,2])/(cis_ratio_summary[,1])  
+    
+    # title_name = paste('Histogram for ratio of ',treatment_name,'/',control_name,' for all cis genes',sep="")
+    title_name = NULL
+    ggplot2 <- plot_distribution(cis_ratio,title_name,left_line,right_line)
+    
+    
+    ## set trans genes 
+    trans_ratio_summary = filtered_ratio_summary_matrix[!(rownames(filtered_ratio_summary_matrix) %in% as.character(unlist(cis_genes))),]
+    trans_ratio = (trans_ratio_summary[,2])/(trans_ratio_summary[,1])  
+    
+    # title_name = paste('Histogram for ratio of ',treatment_name,'/',control_name,' for all trans genes',sep="")
+    title_name = NULL
+    ggplot3 <- plot_distribution(trans_ratio,title_name,left_line,right_line)
+    
+    image_name = outputfile
+    return(list(ggplot2,ggplot3))
+  }
+}
+
+# for most figs
+plot_setup<- function(data_dir,file,results_dir,normal_check=F){
+  normal_check_res <- NULL
+  l = line_position(file)
+  if(length(grep('Trisomy',file))>0){
+    cis_id <- gsub('.*Trisomy_(\\d+).+','\\1',file)
+  }else{
+    cis_id = 0
+  }
+  prefix = gsub('.txt','',file)
+  output_figure = paste(results_dir,prefix,'.jpeg',sep = '')
+  datafile=paste(data_dir,file,sep = '')
+  
+  dataset = read.table(datafile,header=T,sep="\t",as.is = T)
+  chr = dataset[,1]
+  geneid = dataset[,2]
+  control_exp = dataset[,4]
+  treatment_exp = dataset[,3]
+  cis_genes= geneid[chr==cis_id]
+  split2cis=0
+  if(cis_id!=0)
+  {
+    split2cis=1
+  }
+  treatment_info = list("control_name" = "control", "control_counts" = control_exp, "treatment_name" = "treatment", "treatment_counts" = treatment_exp,"GeneID" = geneid,"cis_genes" = cis_genes,"split2cis"=split2cis,"outputfile"=output_figure,"left_line" = l$leftline,"right_line" = l$rightline)
+  if(normal_check){
+    normal_check_res <- rbind(normal_check_res,normality_check(treatment_info))
+  }else{
+    return(get_result_by_treatment_name(treatment_info))
+  }
+  if(!is.null(normal_check_res)){
+    return(normal_check_res)
+  }
+}
+                 
+                    
+                    
+                    
+                    
