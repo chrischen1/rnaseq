@@ -49,7 +49,7 @@ for (i in all_samples) {
   infile3 <- paste0(filter_data_path,i,c('_R1_unpaired.fastq.gz','_R2_unpaired.fastq.gz'),collapse = ',')
   outfile <- paste0(sam_data_path,i,'.sam')
   metric_file <- paste0(align_log_path,i,'.log')
-  system(paste('sbatch /storage/htc/birchlerlab/CENH3_ChIP-seq/scripts/bash_sub.sbatch bowtie2 -x ',ref_genome_path,
+  system(paste('sbatch /storage/htc/birchlerlab/CENH3_ChIP-seq/scripts/bash_sub.sbatch bowtie2 -n 3 -x ',ref_genome_path,
                '-1',infile1,'-2',infile2,'-U',infile3,'-S',outfile,'--met-file',metric_file))
 }
 #4. sam to bam
