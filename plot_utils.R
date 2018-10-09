@@ -65,13 +65,9 @@ plot_distribution_split <- function(cis_ratio,trans_ratio,left_line,right_line,t
   return(g1)
 }
 
-plot_ratio_grid <- function(data_dir,outfile,layout,include=F,prefix=NULL){
+plot_ratio_grid <- function(data_dir,outfile,layout,include=F){
   results_dir = ''
-  if(is.null(prefix)){
-    file_list=list.files(data_dir)
-  }else{
-    file_list=list.files(data_dir,pattern = paste0(prefix,'.+'))
-  }
+  file_list=list.files(data_dir)
   list1 <- list()
   for(i in 3:7){
     g <- plot_setup(data_dir,file_list[i],results_dir)
@@ -85,8 +81,8 @@ plot_ratio_grid <- function(data_dir,outfile,layout,include=F,prefix=NULL){
   
   if(include){
     #plot Tetraploid_vs_Triploid
-    tet <- read.delim(paste(data_prefix,'1/Tetraploid.txt',sep = ''),as.is = T)
-    tri <- read.delim(paste(data_prefix,'1/Triploid.txt',sep = ''),as.is = T)
+    tet <- read.delim(grep('Tetraploid.txt',list.files(data_dir),value = T),as.is = T)
+    tri <- read.delim(grep('Triploid.txt',list.files(data_dir),value = T),as.is = T)
     rownames(tet) <- tet$gene_id
     rownames(tri) <- tri$gene_id
     tet2 <- tet[intersect(rownames(tet),rownames(tri)),]
@@ -99,7 +95,7 @@ plot_ratio_grid <- function(data_dir,outfile,layout,include=F,prefix=NULL){
   multiplot(plotlist = list1,layout=layout)
   dev.off()
 }
-
+  
 plot_distribution = function(ratio , title_name ,left_line,right_line,max_ratio = 6,text_size=6){
   ratio[ratio>max_ratio]=max_ratio
   library(ggplot2)
