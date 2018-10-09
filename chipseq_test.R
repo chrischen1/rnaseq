@@ -5,7 +5,8 @@ out_dir = '/storage/htc/birchlerlab/CENH3_ChIP-seq/data/'
 filter_data_path = paste0(out_dir,'ChIP_data_trimmed_filtered/')
 qc_result_path = paste0(out_dir,'ChIP_data_qc/')
 sam_data_path = paste0(out_dir,'sams/')
-bam_data_path = paste0(out_dir,'data/bams/')
+align_log_path = paste0(out_dir,'align_log/')
+bam_data_path = paste0(out_dir,'bams/')
 bam_merge_path = paste0(out_dir,'bams_merge/')
 peakcalling_results = paste0(out_dir,'peakcalling/')
 
@@ -14,6 +15,7 @@ log_path = paste0(out_dir,'../logs/')
 ref_genome_path = '/storage/htc/birchlerlab/CENH3_ChIP-seq/data/B73/index_bowtie2/B73_Bcentremere'
 dir.create(qc_result_path)
 dir.create(sam_data_path)
+dir.create(align_log_path)
 dir.create(bam_data_path)
 dir.create(bam_merge_path)
 dir.create(filter_data_path)
@@ -46,8 +48,9 @@ for (i in all_samples) {
   infile2 <- paste0(filter_data_path,i,'_R2_paired.fastq.gz')
   infile3 <- paste0(filter_data_path,i,c('_R1_unpaired.fastq.gz','_R2_unpaired.fastq.gz'),collapse = ',')
   outfile <- paste0(sam_data_path,i,'.sam')
+  metric_file <- paste0(align_log_path,i,'.log')
   system(paste('sbatch /storage/htc/birchlerlab/CENH3_ChIP-seq/scripts/bash_sub.sbatch bowtie2 -x ',ref_genome_path,
-               '-1',infile1,'-2',infile2,'-U',infile3,'-S',outfile))
+               '-1',infile1,'-2',infile2,'-U',infile3,'-S',outfile,'--met-file',metric_file))
 }
 #4. sam to bam
 for (i in all_samples) {
