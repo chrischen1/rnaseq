@@ -736,13 +736,13 @@ get_result_by_treatment_name = function(treatment_info) {
   ratio = (filtered_ratio_summary_matrix[,2])/(filtered_ratio_summary_matrix[,1])  
   if(split2cis!=1)
   {
-      # title_name = paste('Histogram for ratio of ',treatment_name,'/',control_name,' for all genes',sep="")
-      title_name = NULL
-      ggplot1 <- plot_distribution(ratio,title_name ,left_line,right_line)
-      image_name = outputfile
-      return(ggplot1)   
+    # title_name = paste('Histogram for ratio of ',treatment_name,'/',control_name,' for all genes',sep="")
+    title_name = NULL
+    ggplot1 <- plot_distribution(ratio,title_name ,left_line,right_line)
+    image_name = outputfile
+    return(ggplot1)   
   }else{
-  
+    
     ## set cis genes 
     cis_ratio_summary = filtered_ratio_summary_matrix[rownames(filtered_ratio_summary_matrix) %in% as.character(unlist(cis_genes)),]
     cis_ratio = (cis_ratio_summary[,2])/(cis_ratio_summary[,1])  
@@ -799,7 +799,56 @@ plot_setup<- function(data_dir,file,results_dir,normal_check=F){
     return(normal_check_res)
   }
 }
- 
+
+
+get_plot_list_from_data <- function(data_dir,outfile,layout,include=F){
+  results_dir = ''
+  file_list=list.files(data_dir)
+  list1 <- list()
+  for(i in 3:7){
+    g <- plot_setup(data_dir,file_list[i],results_dir)
+    list1[[length(list1)+1]] <- g[[1]]
+    list1[[length(list1)+1]] <- g[[2]]
+  }
+  for(i in 1:2){
+    g <- plot_setup(data_dir,file_list[i],results_dir)
+    list1[[length(list1)+1]] <- g
+  }
+  
+  if(include){
+    #plot Tetraploid_vs_Triploid
+    tet <- read.delim(paste0(data_dir,grep('.*Tetraploid.txt',list.files(data_dir),value = T)),as.is = T)
+    tri <- read.delim(paste0(data_dir,grep('.*Triploid.txt',list.files(data_dir),value = T)),as.is = T)
+    rownames(tet) <- tet$gene_id
+    rownames(tri) <- tri$gene_id
+    tet2 <- tet[intersect(rownames(tet),rownames(tri)),]
+    tri2 <- tri[rownames(tet2),]
+    ratio_tet_tri <- tet2$treatment/tri2$treatment
+    g <- plot_distribution(tet2$treatment/tri2$treatment,'',0.75,1.33)
+    list1[[length(list1)+1]] <- g
+  }
+  return(list1)
+}
+
+get_plot_list_from_mat <- function(ratio_mat,genes_list,outpath,prefix){
+  plot_list <- list()
+  ratio_mat[ratio_mat>6] <- 6
+  for(i in 3:ncol(ratio_mat)){
+    genes_split <- split_cis_trans(genes_list,i-2)
+    g_cis<- plot_distribution(ratio_mat[genes_split$cis,i],'',0.67,1.5)
+    g_trans <- plot_distribution(ratio_mat[genes_split$trans,i],'',0.67,1.5)
+    plot_list[[length(plot_list)+1]] <- g_cis
+    plot_list[[length(plot_list)+1]] <- g_trans
+    
+    
+  }
+  g <- plot_distribution(ratio_mat[genes_list,1],'',0.67,1.5)
+  plot_list[[length(plot_list)+1]] <- g
+  g <- plot_distribution(ratio_mat[genes_list, 2],'',0.5,2)
+  plot_list[[length(plot_list)+1]] <- g
+  return(plot_list)
+}
+
 line_position = function(file_name){
   file_name <- tolower(file_name)
   if(length(grep('trisomy',file_name))!=0 | length(grep('triploid',file_name))!=0| length(grep('duplicate_all_cis_tf_trans_target',file_name))!=0| length(grep('single_all_cis_tf_trans_target',file_name))!=0){
@@ -809,7 +858,38 @@ line_position = function(file_name){
   }
   return(l)
 }
-                    
-                    
+
+split_cis_trans <- function(genes_list,chr){
+  return(list('cis'=grep(paste('^AT',chr,sep = ''),genes_list,value = T),
+              'trans'=grep(paste('^AT',chr,sep = ''),genes_list,value = T,invert = T)))
+}
+get_all_summary_matrix = function(GeneId,control_name,treatment_name,control_rowMean, treatment_rowMean){
+  #get gene id
+  gene_id = GeneId
+  head(gene_id)
+  
+  #get control average
+  control_avg = control_rowMean
+  
+  #get treatment average
+  treatment_avg = treatment_rowMean
+  #combine ratio into frame
+  ratio_summary = data.frame(controlavg=control_avg,treatmentavg=treatment_avg)
+  row.names(ratio_summary) <- gene_id
+  head(ratio_summary)
+  ratio_summary_matrix <- data.matrix(ratio_summary)
+  head(ratio_summary_matrix)
+  
+  data = list("ratio_summary_matrix" = ratio_summary_matrix)
+  return(data)
+  
+}
+get_ratio_summary_matrix = function(ratio_summary_matrix ){
+  Chr_select = rowSums(ratio_summary_matrix) != 0
+  Chr_ratio_summary_matrix =ratio_summary_matrix[Chr_select,]
+  Chr_ratio_summary_matrix[Chr_ratio_summary_matrix==0]=0.0000000001
+  return(Chr_ratio_summary_matrix)
+}
+
                     
                     
