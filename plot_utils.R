@@ -105,14 +105,15 @@ plot_distribution = function(ratio , title_name ,left_line,right_line,max_ratio 
   library(ggplot2)
   df = data.frame(ratio)
   xlabel = c(sprintf("%.1f", round(seq(0,max_ratio-0.15,0.5),2)),'>6.0')
-  g1<-ggplot(df, aes(x=ratio)) + geom_histogram(binwidth=0.05, size=0.3, color="black", fill="cornflowerblue") +
-    geom_freqpoly(binwidth=0.05, size=0.3,col="gray24")+ theme_bw()  +
+  g1<-ggplot(df, aes(x=ratio)) + geom_histogram(binwidth=0.05, size=0.1, color="black", fill="cornflowerblue") +
+    geom_freqpoly(binwidth=0.05, size=0.1,col="gray24")+ theme_bw()  +
     labs(title=NULL, x=NULL, y =NULL)+
     # scale_fill_gradient("Frequency",low = "green", high = "red") +
     theme(plot.title = element_text(color="black", size=text_size,face="bold")) +
     theme(legend.text = element_text( size=text_size),legend.title = element_text( size=text_size), legend.key.size = unit(1,"cm")) +
     theme(axis.title = element_text(color="black", size=text_size),axis.text=element_text(size=text_size))+
-    theme(panel.grid.major = element_line(colour = "white", linetype = "dotted"),panel.grid.minor.y = element_blank())+
+    theme(panel.grid.major = element_line(colour = "white", linetype = "dotted"),panel.grid.minor.y = element_blank(),
+          panel.grid.minor.x = element_blank())+
     geom_vline(xintercept = c(left_line,1,right_line),color = "black", size=0.4)+theme(plot.title = element_text(hjust = 0.5))
   g1 = g1 + annotate("text", x = c(0.2,1.25,2.4), 
                      y = ggplot_build(g1)$layout$panel_params[[1]]$y.range[2]*0.88, 
