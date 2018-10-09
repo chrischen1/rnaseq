@@ -67,5 +67,5 @@ for (i in all_samples1) {
 for(i in list.files(bam_merge_path)){
   experiment_name <- gsub('.bam','',i)
   system(paste0('sbatch /storage/htc/birchlerlab/CENH3_ChIP-seq/scripts/bash_sub.sbatch macs2 callpeak -t ',
-                bam_merge_path,i,' -n ',experiment_name,'--outdir ',bam_merge_path,experiment_name ,' -f BAM -g 1.2e8 -B -q 0.01 --nomodel'))
+                bam_merge_path,i,' -n ',experiment_name,' --outdir ',bam_merge_path,experiment_name ,' -f BAM -g 1.2e8 -B -q 0.01 --nomodel'))
 }
