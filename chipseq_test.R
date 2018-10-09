@@ -1,13 +1,15 @@
 # environment set
 raw_data_path = '/storage/htc/birchlerlab/CENH3_ChIP-seq/data/ChIP_data/'
-filter_data_path = '/storage/htc/birchlerlab/CENH3_ChIP-seq/data/ChIP_data_trimmed_filtered/'
-qc_result_path = '/storage/htc/birchlerlab/CENH3_ChIP-seq/data/ChIP_data_qc/'
-sam_data_path = '/storage/htc/birchlerlab/CENH3_ChIP-seq/data/sams/'
-bam_data_path = '/storage/htc/birchlerlab/CENH3_ChIP-seq/data/bams/'
-bam_merge_path = '/storage/htc/birchlerlab/CENH3_ChIP-seq/data/bams_merge/'
-macs2_path = '/storage/htc/birchlerlab/CENH3_ChIP-seq/data/macs2_path/'
+out_dir = '/storage/htc/birchlerlab/CENH3_ChIP-seq/data/'
 
-log_path = '/storage/htc/birchlerlab/CENH3_ChIP-seq/logs/'
+filter_data_path = paste0(out_dir,'ChIP_data_trimmed_filtered/')
+qc_result_path = paste0(out_dir,'ChIP_data_qc/')
+sam_data_path = paste0(out_dir,'sams/')
+bam_data_path = paste0(out_dir,'data/bams/')
+bam_merge_path = paste0(out_dir,'bams_merge/')
+peakcalling_results = paste0(out_dir,'peakcalling/')
+
+log_path = paste0(out_dir,'../logs/')
 
 ref_genome_path = '/storage/htc/birchlerlab/CENH3_ChIP-seq/data/B73/index_bowtie2/B73_Bcentremere'
 dir.create(qc_result_path)
@@ -15,7 +17,7 @@ dir.create(sam_data_path)
 dir.create(bam_data_path)
 dir.create(bam_merge_path)
 dir.create(filter_data_path)
-dir.create(macs2_path)
+dir.create(peakcalling_results)
 dir.create(log_path)
 
 all_samples <- unique(gsub('_R.+','',list.files(raw_data_path)))
@@ -52,7 +54,7 @@ for (i in all_samples) {
   infile <- paste0(sam_data_path,i,'.sam')
   outfile <- paste0(bam_data_path,i,'.bam')
   system(paste('sbatch /storage/htc/birchlerlab/CENH3_ChIP-seq/scripts/bash_sub.sbatch samtools view -bSF4',
-               infile,'>',outfile))
+               infile,'-o',outfile))
 }
 #5. merge bam
 all_samples1 <- unique(gsub('_.+','',all_samples))
@@ -67,5 +69,15 @@ for (i in all_samples1) {
 for(i in list.files(bam_merge_path)){
   experiment_name <- gsub('.bam','',i)
   system(paste0('sbatch /storage/htc/birchlerlab/CENH3_ChIP-seq/scripts/bash_sub.sbatch macs2 callpeak -t ',
-                bam_merge_path,i,' -n ',experiment_name,' --outdir ',bam_merge_path,experiment_name ,' -f BAM -g 1.2e8 -B -q 0.01 --nomodel'))
+                bam_merge_path,i,' -n ',experiment_name,' --outdir ',peakcalling_results,experiment_name ,' -f BAM -g 1.2e8 -B -q 0.01 --nomodel'))
 }
+
+
+
+
+
+
+
+
+
+
