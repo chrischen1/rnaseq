@@ -3,31 +3,20 @@ source(args[1])
 
 script_dir = '/storage/htc/bdm/ccm3x/rnaseq_pipeline/'
 source('https://raw.githubusercontent.com/chrischen1/rnaseq/master/de_rnaseq.R')
+library(edgeR)
 
-rawdata_path <- paste(project_dir,'rawdata/',sep = '')
+rawdata_path <- fastq_dir
 trim_data_path <- paste(project_dir,'trimdata/',sep = '')
 alignment_result <- paste(project_dir,'alignment_result/',sep = '')
 log_path <- paste(project_dir,'logs/',sep = '')
 output_result <- paste(project_dir,'final_result/',sep = '')
 
 dir.create(project_dir,showWarnings = F)
-dir.create(rawdata_path,showWarnings = F)
 dir.create(trim_data_path,showWarnings = F)
 dir.create(alignment_result,showWarnings = F)
 dir.create(output_result,showWarnings = F)
 dir.create(log_path,showWarnings = F)
 job_name <- substr(gsub('.+/(.+)/','\\1',project_dir),1,8)
-
-# download fastq
-setwd(rawdata_path)
-system(paste('cd',rawdata_path))
-if(download_script!=''){
-  print(paste(Sys.time(),'downloading fastq files'))
-  system(paste('bash',download_script))
-}else{
-  print(paste(Sys.time(),'copying fastq files'))
-  system(paste('cp ',fastq_dir,'*.fastq.gz ./',sep = ''))
-}
 
 setwd(log_path)
 # After downloading, extract results
@@ -55,7 +44,6 @@ while(slurm_running(job_name)) {
 
 # After trimming, start alignment
 print(paste(Sys.time(),'start alignment'))
-system('module load star/star-2.5.2b')
 for(i in list.files(trim_data_path,pattern = '.+.fastq.*')){
   out_path_i <- paste(alignment_result,gsub('.fastq.*','',i),'/',sep = '')
   dir.create(out_path_i,showWarnings = F)
@@ -85,10 +73,20 @@ for(i in all_results){
 colnames(cnt) <- cnt_colnames
 write.csv(cnt,paste(output_result,'counts.csv',sep = ''))
 
+# get RPKM
+if(gtf_file != ''){
+  gtf <- read.delim(gtf_file,as.is = T,comment.char = '#',header = F,sep = '\t')
+  gtf_gene <- gtf[gtf$V3=='gene',]
+  gene_length <- as.numeric(gtf_gene$V5)-as.numeric(gtf_gene$V4)
+  names(gene_length) <- gsub('gene_id ([A-Za-z0-9]+); .+','\\1',gtf_gene$V9)
+  rpkm_data <- rpkm(cnt,gene.length = gene_length[rownames(cnt)])
+  write.csv(rpkm_data,paste(output_result,'rpkm.csv',sep = ''))
+}
 
+# differential expression analysis
 if(meta_file!=''){
   print(paste(Sys.time(),'start differential expression analysis'))
-  system(paste('sbatch -J ',job_name,' ',script_dir,'P4_DE_analysis.sbatch ',alignment_result,' ',output_result,' ',meta_file,sep = ''))
+  system(paste('sbatch -J ',job_name,' ',script_dir,'P4_DE_analysis.sbatch ',output_result,' ',meta_file,sep = ''))
   Sys.sleep(60)
   while(slurm_running(job_name)) {
     Sys.sleep(300)

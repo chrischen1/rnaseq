@@ -50,7 +50,7 @@ for (i in all_samples) {
   outfile <- paste0(sam_data_path,i,'.sam')
   metric_file <- paste0(align_log_path,i,'.log')
   system(paste('sbatch /storage/htc/birchlerlab/CENH3_ChIP-seq/scripts/bash_sub.sbatch bowtie2 -v 3 -x ',ref_genome_path,
-               '-1',infile1,'-2',infile2,'-U',infile3,'-S',outfile,'--met-file',metric_file))
+               '-1',infile1,'-2',infile2,'-U',infile3,'-S',outfile))
 }
 #4. sam to bam
 for (i in all_samples) {
