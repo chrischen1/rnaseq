@@ -220,7 +220,7 @@ get_sample_csv <- function(sample_path){
 #' @param combine_fdr T for combine FDR and p-values with group and F for compute pairwisely
 #' @param w n by p matrix for n samples and p factors for batch effect correction from RUVSeq
 #' @return a list, each element is a matrix containing p-value, LR,logCPM, LR and FDR for each group.treatment
-edgeR_wrapper <- function(cnt,grp_table,norm_method = 'none',w = NULL,combine_fdr = F){
+edgeR_wrapper <- function(cnt,grp_table,norm_method = 'rle',w = NULL,combine_fdr = F){
   return_list <- list()
   library(edgeR)
   if(sum(rownames(grp_table) %in% colnames(cnt)) < nrow(grp_table)){
