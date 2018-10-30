@@ -39,6 +39,20 @@ get_args <- function(){
   return( argv )
   }
 
+#' get RPKM by edgeR
+#'
+#' @param cnt p by n matrix, gene by sample count matrix
+#' @param gtf_file .gtf gene annotation file
+#' @return p by n matrix as RPKM
+get_rpkm <- function(cnt,gtf_file){
+  gtf <- read.delim(gtf_file,as.is = T,comment.char = '#',header = F,sep = '\t')
+  gtf_gene <- gtf[gtf$V3=='gene',]
+  gene_length <- as.numeric(gtf_gene$V5)-as.numeric(gtf_gene$V4)
+  names(gene_length) <- gsub('gene_id ([A-Za-z0-9]+); .+','\\1',gtf_gene$V9)
+  rpkm_data <- rpkm(cnt,gene.length = gene_length[rownames(cnt)])
+  return(rpkm_data)
+}
+
 #' transform TPM to RPKM
 #'
 #' @param combined output file end with .combined from bcbio.
