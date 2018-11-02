@@ -75,11 +75,7 @@ write.csv(cnt,paste(output_result,'counts.csv',sep = ''))
 
 # get RPKM
 if(gtf_file != ''){
-  gtf <- read.delim(gtf_file,as.is = T,comment.char = '#',header = F,sep = '\t')
-  gtf_gene <- gtf[gtf$V3=='gene',]
-  gene_length <- as.numeric(gtf_gene$V5)-as.numeric(gtf_gene$V4)
-  names(gene_length) <- gsub('gene_id ([A-Za-z0-9]+); .+','\\1',gtf_gene$V9)
-  rpkm_data <- rpkm(cnt,gene.length = gene_length[rownames(cnt)])
+  rpkm_data <- get_rpkm(cnt,gtf_file)
   write.csv(rpkm_data,paste(output_result,'rpkm.csv',sep = ''))
 }
 
