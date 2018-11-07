@@ -3,6 +3,17 @@
 ## LSP RNAseq bcbio pipeline 
 ## by Artem Sokolov, Chris Chen, et al.
 
+resolve.filename <- function( fn, syn.local   = "~/data/")
+{
+  if( substr( fn, 0, 3 ) == "syn" )
+  {
+    dir.create(syn.local,showWarnings = F)
+    s <- synGet( fn, downloadLocation = syn.local )
+    return( s@filePath )
+  }
+  return( fn )
+}
+
 ## Retrieves count file and group information file from command line arguments, 
 ## Returns a named list of values which is used by the main() function in run_de.R
 get_args <- function(){
