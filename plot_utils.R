@@ -267,7 +267,7 @@ plot_chromesome <- function(ratio,chr){
 }
 
 plot_volcano <- function(Fold_Change,Expre,P_Value,plot_title='',
-                         left_line=0.67,right_line=1.5,ylab = 'Avg Expression',
+                         left_line=0.67,right_line=1.5,
                          hide_black_dots =F,show_lines=T,cex=1,xlim=c(-6,6),ylim=c(0,20),col_cutoff=1){
   # Red indicates P_Value<0.05 and log2Fold_Change<-1, green is P_Value<0.05 and log2Fold_Change>1)
   # red indicates up regulated, green is downregulated
@@ -279,8 +279,8 @@ plot_volcano <- function(Fold_Change,Expre,P_Value,plot_title='',
   }else{
     plot(log2(Fold_Change), log2(Expre),cex=cex,main=plot_title, pch=20, xlab= '', ylab="",cex.lab=1.8, xlim=xlim, ylim=ylim,cex.axis=1.8)
   }
-  title(xlab="log"["2"]~"(Fold Change)", line=4, cex.lab=1.35*cex)
-  title(ylab=(paste0('"log"["2"]~"(',ylab,')"')), line=2, cex.lab=1.35*cex)
+  title(xlab="log"[2]~"(Fold Change)", line=4, cex.lab=1.35*cex)
+  title(ylab="log"[2]~"(Avg expression)", line=2, cex.lab=1.35*cex)
   #lines
   if(show_lines){
     abline(v=log2(right_line),lty=3,lwd=5,col='black')
