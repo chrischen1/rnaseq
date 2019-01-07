@@ -323,9 +323,9 @@ plot_volcano_pval <- function(Fold_Change,P_Value,plot_title='',
   title(ylab=("-log"["10"]~"(p-value)"), line=2, cex.lab=1.8)
   #lines
   if(show_lines){
-    abline(v=log2(1.5),lty=3,lwd=5,col='black')
-    text(log2(right),ylim[2]*0.9, paste("",right), col = "black", adj = c(0, -.1),cex=1.5)
-    abline(v=log2(2/3),lty=3,lwd=5,col='black')
+    abline(v=log2(right),lty=3,lwd=5,col='black')
+    text(log2(right)*1.05,ylim[2]*0.9, paste("",right), col = "black", adj = c(0, -.1),cex=1.5)
+    abline(v=log2(left),lty=3,lwd=5,col='black')
     text(log2(left),ylim[2]*0.9, paste("",left), col = "black", adj = c(0, -.1),cex=1.5)
   }
   abline(v=log2(1),lty=3,lwd=5,col='black')
@@ -363,7 +363,7 @@ plot_vol_edgeR <- function(counts,grp,plot_title='',norm_method='none',rpkm=NULL
                  hide_black_dots = hide_black_dots,cex=cex,Expre = expre,plot_title=plot_title,col_cutoff=col_cutoff)
   }else{
     plot_volcano_pval(Fold_Change = 2^(de1$logFC),P_Value = de1$FDR,show_lines = show_lines,ylim=ylim,
-                      left = left_line,right = left_line,
+                      left = left_line,right = right_line,
                       hide_black_dots = hide_black_dots,cex=cex,plot_title=plot_title,col_cutoff=col_cutoff)
     
   }
