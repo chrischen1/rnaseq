@@ -359,11 +359,11 @@ plot_vol_edgeR <- function(counts,grp,plot_title='',norm_method='none',rpkm=NULL
   
   if(!pval_plot){
     plot_volcano(Fold_Change = 2^(de1$logFC),P_Value = de1$FDR,show_lines = show_lines,ylim=ylim,
-                 left_line = left_line,right_line = left_line,
+                 left_line = left_line,right_line = right_line,
                  hide_black_dots = hide_black_dots,cex=cex,Expre = expre,plot_title=plot_title,col_cutoff=col_cutoff)
   }else{
     plot_volcano_pval(Fold_Change = 2^(de1$logFC),P_Value = de1$FDR,show_lines = show_lines,ylim=ylim,
-                      left_line = left_line,right_line = left_line,
+                      left = left_line,right = left_line,
                       hide_black_dots = hide_black_dots,cex=cex,plot_title=plot_title,col_cutoff=col_cutoff)
     
   }
