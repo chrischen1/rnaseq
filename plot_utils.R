@@ -1,3 +1,32 @@
+# wrapper for vol plot, scatter plot and ratio plot
+generate_plots <- function(cnt,rpkm,grp,out_path,left_line = 0.67,right_line = 1.5,gene_list = NULL,gene_list_name = 'all'){
+  genes_keep <- rownames(rpkm)[apply(rpkm, 1, function(x)sum(x>=1))>=3]
+  if(!is.null(gene_list)){
+    genes_keep <- intersect(genes_keep,gene_list)
+  }
+  cnt2 <- cnt[genes_keep,]
+  rpkm2 <- rpkm[genes_keep,]
+  cnt2[cnt2==1] <- 0.000001
+  exp_name <- paste0(gene_list_name,'_',grp$condition[!grp$control][1],'_vs_',grp$condition[grp$control][1])
+  ratio1 <- apply(cnt2[,rownames(grp)[!grp$control]], 1, mean)/apply(cnt2[,rownames(grp)[grp$control]], 1, mean)
+  ratio_plot1 <- plot_distribution(ratio = ratio1,left_line = left_line,right_line = right_line,max_ratio = 6,text_size=12)
+  
+  
+  png(paste0(out_path,exp_name,'_ratio.png'),width = 800,height = 600)
+  plot(ratio_plot1)
+  dev.off()
+  
+  png(paste0(out_path,exp_name,'_scatterplot.png'),width = 800,height = 600)
+  plot_vol_edgeR(counts = cnt,norm_method = 'RLE',expre = 'mean',left_line = left_line,right_line = right_line,
+                 gene_keep=genes_keep,grp = grp)
+  dev.off()
+  
+  png(paste0(out_path,exp_name,'_volplot.png'),width = 800,height = 600)
+  plot_vol_edgeR(counts = cnt,norm_method = 'RLE',expre = 'mean',left_line = left_line,right_line = right_line,
+                 gene_keep=genes_keep,grp = grp,pval_plot = T)
+  dev.off()
+  
+}
 
 modify_ylab <- function(y_labs){
   for(i in 1:length(y_labs)){
@@ -284,12 +313,12 @@ plot_volcano <- function(Fold_Change,Expre,P_Value,plot_title='',
   #lines
   if(show_lines){
     abline(v=log2(right_line),lty=3,lwd=5,col='black')
-    text(log2(right_line)+0.6,ylim[2]*0.9, paste0("",right_line), col = "black", adj = c(0, -.1),cex=1.5*cex)
+    text(log2(right_line)*1.2,ylim[2]*0.9, paste0("",right_line), col = "black", adj = c(0, -.1),cex=1.5*cex)
     abline(v=log2(left_line),lty=3,lwd=5,col='black')
     text(log2(left_line)-0.9,ylim[2]*0.9, paste0("",left_line), col = "black", adj = c(0, -.1),cex=1.5*cex)
   }
   abline(v=log2(1),lty=3,lwd=5,col='black')
-  text(0,ylim[2]*0.9, paste("",0), col = "black", adj = c(0, -.1),cex=1.5*cex)
+  # text(0,ylim[2]*0.9, paste("",0), col = "black", adj = c(0, -.1),cex=1.5*cex)
   
   
   up_ind <- P_Value<.05 & log2(Fold_Change) > col_cutoff
@@ -324,9 +353,9 @@ plot_volcano_pval <- function(Fold_Change,P_Value,plot_title='',
   #lines
   if(show_lines){
     abline(v=log2(right),lty=3,lwd=5,col='black')
-    text(log2(right)*1.05,ylim[2]*0.9, paste("",right), col = "black", adj = c(0, -.1),cex=1.5)
+    text(log2(right)*1.2,ylim[2]*0.9, paste("",right), col = "black", adj = c(0, -.1),cex=1.5)
     abline(v=log2(left),lty=3,lwd=5,col='black')
-    text(log2(left),ylim[2]*0.9, paste("",left), col = "black", adj = c(0, -.1),cex=1.5)
+    text(log2(left)-0.9,ylim[2]*0.9, paste("",left), col = "black", adj = c(0, -.1),cex=1.5)
   }
   abline(v=log2(1),lty=3,lwd=5,col='black')
   
