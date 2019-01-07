@@ -189,73 +189,6 @@ plot_distribution_pairs <- function(r,cis_genes,title_name = '',left_line = 0.67
   return(g)
 }
 
-plot_volcano <- function(Fold_Change,Expre,P_Value,plot_title='',left_line=0.67,right_line=1.5,hide_black_dots =F,show_lines=T,cex=1,xlim=c(-6,6),ylim=c(0,20),col_cutoff=1){
-  # Red indicates P_Value<0.05 and log2Fold_Change<-1, green is P_Value<0.05 and log2Fold_Change>1)
-  # red indicates up regulated, green is downregulated
-  
-  if(hide_black_dots){
-    plot(log2(Fold_Change), log2(Expre),col='white',
-         cex.main=2, main=plot_title, pch=20, xlab= '', ylab="",cex.lab=1.8, xlim=xlim, ylim=ylim,cex.axis=1.8)
-    
-  }else{
-    plot(log2(Fold_Change), log2(Expre),cex=cex,main=plot_title, pch=20, xlab= '', ylab="",cex.lab=1.8, xlim=xlim, ylim=ylim,cex.axis=1.8)
-  }
-  title(xlab="log"["2"]~"(Fold Change)", line=4, cex.lab=1.35*cex)
-  title(ylab=("log"["2"]~"(S Expression)"), line=2, cex.lab=1.35*cex)
-  #lines
-  if(show_lines){
-    abline(v=log2(right_line),lty=3,lwd=5,col='black')
-    text(log2(right_line)+0.6,ylim[2]*0.9, paste0("",right_line), col = "black", adj = c(0, -.1),cex=1.5*cex)
-    abline(v=log2(left_line),lty=3,lwd=5,col='black')
-    text(log2(left_line)-0.9,ylim[2]*0.9, paste0("",left_line), col = "black", adj = c(0, -.1),cex=1.5*cex)
-  }
-  abline(v=log2(1),lty=3,lwd=5,col='black')
-  text(0,ylim[2]*0.9, paste("",0), col = "black", adj = c(0, -.1),cex=1.5*cex)
-  
-  
-  up_ind <- P_Value<.05 & log2(Fold_Change) > col_cutoff
-  down_ind <- P_Value<.05 & log2(Fold_Change) < -col_cutoff
-  
-  points(log2(Fold_Change)[up_ind], log2(Expre)[up_ind], pch=20, col="red",cex=cex)
-  points(log2(Fold_Change)[down_ind], log2(Expre)[down_ind], pch=20, col="green",cex=cex)
-}
-
-plot_volcano_pairs <- function(Fold_Change,Expre,P_Value,cis_genes,plot_title='',left_line=0.67,right_line=1.5,hide_black_dots =F,show_lines=T,cex=1,xlim=c(-6,6),ylim=c(0,20)){
-  trans_genes <- names(Fold_Change)[!names(Fold_Change)%in%cis_genes]
-  plot_volcano(Fold_Change = Fold_Change[cis_genes],plot_title='cis',Expre = sum_expre[cis_genes],P_Value = P_Value[cis_genes],left_line = left_line,right_line = right_line)
-  plot_volcano(Fold_Change = Fold_Change[trans_genes],plot_title='trans',Expre = sum_expre[trans_genes],P_Value = P_Value[trans_genes],left_line = left_line,right_line = right_line)
-}
-
-plot_volcano_pval <- function(Fold_Change,P_Value,plot_title='',left=0.67,right=1.5,hide_black_dots =F,show_lines=T,cex=2,col_cutoff=1,xlim=c(-6,6),ylim=c(0,20)){
-  # Red indicates P_Value<0.05 and log2Fold_Change<-1, green is P_Value<0.05 and log2Fold_Change>1)
-  # red indicates up regulated, green is downregulated
-  
-  if(hide_black_dots){
-    plot(log2(Fold_Change), -log10(P_Value),col='white',
-         cex = cex, main=plot_title, pch=20,xaxt="n", xlab= '', ylab="",cex.lab=1.8, xlim=xlim, ylim=ylim,cex.axis=1.8)
-    
-  }else{
-    plot(log2(Fold_Change),-log10(P_Value),cex=cex,main=plot_title, pch=20, xaxt="n", xlab= '', ylab="",cex.lab=1.8, xlim=xlim, ylim=ylim,cex.axis=1.8)
-  }
-  axis(1, at = seq(-4,4, by = 0.5), las=2,cex.axis=1.8)
-  title(xlab="log"["2"]~"(Ratio)", line=4, cex.lab=1.8)
-  title(ylab=("-log"["10"]~"(p-value)"), line=2, cex.lab=1.8)
-  #lines
-  if(show_lines){
-    abline(v=log2(1.5),lty=3,lwd=5,col='black')
-    text(log2(right),ylim[2]*0.9, paste("",right), col = "black", adj = c(0, -.1),cex=1.5)
-    abline(v=log2(2/3),lty=3,lwd=5,col='black')
-    text(log2(left),ylim[2]*0.9, paste("",left), col = "black", adj = c(0, -.1),cex=1.5)
-  }
-  abline(v=log2(1),lty=3,lwd=5,col='black')
-  
-  
-  up_ind <- P_Value<.05 & log2(Fold_Change) > col_cutoff
-  down_ind <- P_Value<.05 & log2(Fold_Change) < (-col_cutoff)
-  
-  points(log2(Fold_Change)[up_ind],  -log10(P_Value)[up_ind], pch=20, col="red",cex=cex)
-  points(log2(Fold_Change)[down_ind],  -log10(P_Value)[down_ind], pch=20, col="green",cex=cex)
-}
 
 plot_cis_trans <- function(x,gene_list,chr,image_name){
   x1 <- x[x$gene_id %in% gene_list,]
@@ -333,7 +266,80 @@ plot_chromesome <- function(ratio,chr){
   return(g1)
 }
 
-plot_vol_edgeR <- function(counts,grp,plot_title='',norm_method='none',rpkm=NULL,expre='mean',hide_black_dots =F,cex=1,show_lines=T,pval_plot=F,gene_keep=NULL,col_cutoff=0){
+plot_volcano <- function(Fold_Change,Expre,P_Value,plot_title='',
+                         left_line=0.67,right_line=1.5,ylab = 'Avg Expression',
+                         hide_black_dots =F,show_lines=T,cex=1,xlim=c(-6,6),ylim=c(0,20),col_cutoff=1){
+  # Red indicates P_Value<0.05 and log2Fold_Change<-1, green is P_Value<0.05 and log2Fold_Change>1)
+  # red indicates up regulated, green is downregulated
+  
+  if(hide_black_dots){
+    plot(log2(Fold_Change), log2(Expre),col='white',
+         cex.main=2, main=plot_title, pch=20, xlab= '', ylab="",cex.lab=1.8, xlim=xlim, ylim=ylim,cex.axis=1.8)
+    
+  }else{
+    plot(log2(Fold_Change), log2(Expre),cex=cex,main=plot_title, pch=20, xlab= '', ylab="",cex.lab=1.8, xlim=xlim, ylim=ylim,cex.axis=1.8)
+  }
+  title(xlab="log"["2"]~"(Fold Change)", line=4, cex.lab=1.35*cex)
+  title(ylab=(paste0('"log"["2"]~"(',ylab,')"')), line=2, cex.lab=1.35*cex)
+  #lines
+  if(show_lines){
+    abline(v=log2(right_line),lty=3,lwd=5,col='black')
+    text(log2(right_line)+0.6,ylim[2]*0.9, paste0("",right_line), col = "black", adj = c(0, -.1),cex=1.5*cex)
+    abline(v=log2(left_line),lty=3,lwd=5,col='black')
+    text(log2(left_line)-0.9,ylim[2]*0.9, paste0("",left_line), col = "black", adj = c(0, -.1),cex=1.5*cex)
+  }
+  abline(v=log2(1),lty=3,lwd=5,col='black')
+  text(0,ylim[2]*0.9, paste("",0), col = "black", adj = c(0, -.1),cex=1.5*cex)
+  
+  
+  up_ind <- P_Value<.05 & log2(Fold_Change) > col_cutoff
+  down_ind <- P_Value<.05 & log2(Fold_Change) < -col_cutoff
+  
+  points(log2(Fold_Change)[up_ind], log2(Expre)[up_ind], pch=20, col="red",cex=cex)
+  points(log2(Fold_Change)[down_ind], log2(Expre)[down_ind], pch=20, col="green",cex=cex)
+}
+
+plot_volcano_pairs <- function(Fold_Change,Expre,P_Value,cis_genes,plot_title='',left_line=0.67,right_line=1.5,hide_black_dots =F,show_lines=T,cex=1,xlim=c(-6,6),ylim=c(0,20)){
+  trans_genes <- names(Fold_Change)[!names(Fold_Change)%in%cis_genes]
+  plot_volcano(Fold_Change = Fold_Change[cis_genes],plot_title='cis',Expre = sum_expre[cis_genes],P_Value = P_Value[cis_genes],left_line = left_line,right_line = right_line)
+  plot_volcano(Fold_Change = Fold_Change[trans_genes],plot_title='trans',Expre = sum_expre[trans_genes],P_Value = P_Value[trans_genes],left_line = left_line,right_line = right_line)
+}
+
+plot_volcano_pval <- function(Fold_Change,P_Value,plot_title='',
+                              left=0.67,right=1.5,
+                              hide_black_dots =F,show_lines=T,cex=2,col_cutoff=1,xlim=c(-6,6),ylim=c(0,20)){
+  # Red indicates P_Value<0.05 and log2Fold_Change<-1, green is P_Value<0.05 and log2Fold_Change>1)
+  # red indicates up regulated, green is downregulated
+  
+  if(hide_black_dots){
+    plot(log2(Fold_Change), -log10(P_Value),col='white',
+         cex = cex, main=plot_title, pch=20,xaxt="n", xlab= '', ylab="",cex.lab=1.8, xlim=xlim, ylim=ylim,cex.axis=1.8)
+    
+  }else{
+    plot(log2(Fold_Change),-log10(P_Value),cex=cex,main=plot_title, pch=20, xaxt="n", xlab= '', ylab="",cex.lab=1.8, xlim=xlim, ylim=ylim,cex.axis=1.8)
+  }
+  axis(1, at = seq(-4,4, by = 0.5), las=2,cex.axis=1.8)
+  title(xlab="log"["2"]~"(Fold change)", line=4, cex.lab=1.8)
+  title(ylab=("-log"["10"]~"(p-value)"), line=2, cex.lab=1.8)
+  #lines
+  if(show_lines){
+    abline(v=log2(1.5),lty=3,lwd=5,col='black')
+    text(log2(right),ylim[2]*0.9, paste("",right), col = "black", adj = c(0, -.1),cex=1.5)
+    abline(v=log2(2/3),lty=3,lwd=5,col='black')
+    text(log2(left),ylim[2]*0.9, paste("",left), col = "black", adj = c(0, -.1),cex=1.5)
+  }
+  abline(v=log2(1),lty=3,lwd=5,col='black')
+  
+  
+  up_ind <- P_Value<.05 & log2(Fold_Change) > col_cutoff
+  down_ind <- P_Value<.05 & log2(Fold_Change) < (-col_cutoff)
+  
+  points(log2(Fold_Change)[up_ind],  -log10(P_Value)[up_ind], pch=20, col="red",cex=cex)
+  points(log2(Fold_Change)[down_ind],  -log10(P_Value)[down_ind], pch=20, col="green",cex=cex)
+}
+
+plot_vol_edgeR <- function(counts,grp,plot_title='',norm_method='none',rpkm=NULL,expre='mean',hide_black_dots =F,cex=1,
+                           show_lines=T,pval_plot=F,gene_keep=NULL,col_cutoff=0,left_line=0.67,right_line=1.5){
   gene_keep <- intersect(gene_keep,rownames(counts))
   de1 <- data.frame(edgeR_wrapper(counts[,rownames(grp)],grp,norm_method=norm_method)[[1]])
   if(!is.null(gene_keep)){
@@ -352,9 +358,13 @@ plot_vol_edgeR <- function(counts,grp,plot_title='',norm_method='none',rpkm=NULL
   ylim <- c(min(log2(expre+0.1))*0.8,max(log2(expre+0.1))*1.2)
   
   if(!pval_plot){
-    plot_volcano(Fold_Change = 2^(de1$logFC),P_Value = de1$FDR,show_lines = show_lines,ylim=ylim,hide_black_dots = hide_black_dots,cex=cex,Expre = expre,plot_title=plot_title,col_cutoff=col_cutoff)
+    plot_volcano(Fold_Change = 2^(de1$logFC),P_Value = de1$FDR,show_lines = show_lines,ylim=ylim,
+                 left_line = left_line,right_line = left_line,
+                 hide_black_dots = hide_black_dots,cex=cex,Expre = expre,plot_title=plot_title,col_cutoff=col_cutoff)
   }else{
-    plot_volcano_pval(Fold_Change = 2^(de1$logFC),P_Value = de1$FDR,show_lines = show_lines,ylim=ylim,hide_black_dots = hide_black_dots,cex=cex,plot_title=plot_title,col_cutoff=col_cutoff)
+    plot_volcano_pval(Fold_Change = 2^(de1$logFC),P_Value = de1$FDR,show_lines = show_lines,ylim=ylim,
+                      left_line = left_line,right_line = left_line,
+                      hide_black_dots = hide_black_dots,cex=cex,plot_title=plot_title,col_cutoff=col_cutoff)
     
   }
 }
