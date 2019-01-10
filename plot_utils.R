@@ -135,7 +135,7 @@ generate_plots <- function(cnt,rpkm,grp,out_path,left_line = 0.67,right_line = 1
   }
   cnt2 <- cnt[genes_keep,]
   rpkm2 <- rpkm[genes_keep,]
-  cnt2[cnt2==1] <- 0.000001
+  cnt2[cnt2==0] <- 0.000001
   exp_name <- paste0(gene_list_name,'_',grp$condition[!grp$control][1],'_vs_',grp$condition[grp$control][1])
   ratio1 <- apply(cnt2[,rownames(grp)[!grp$control]], 1, mean)/apply(cnt2[,rownames(grp)[grp$control]], 1, mean)
   ratio_plot1 <- plot_distribution(ratio = ratio1,left_line = left_line,right_line = right_line,max_ratio = 6,text_size=16)
