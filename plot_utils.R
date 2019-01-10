@@ -127,7 +127,8 @@ plot_vol_edgeR <- function(counts,grp,plot_title='',norm_method='none',rpkm=NULL
 }
 
 # wrapper for vol plot, scatter plot and ratio plot
-generate_plots <- function(cnt,rpkm,grp,out_path,left_line = 0.67,right_line = 1.5,gene_list = NULL,gene_list_name = 'all'){
+generate_plots <- function(cnt,rpkm,grp,out_path,left_line = 0.67,right_line = 1.5,
+                           gene_list = NULL,gene_list_name = 'all'){
   genes_keep <- rownames(rpkm)[apply(rpkm, 1, function(x)sum(x>=1))>=3]
   if(!is.null(gene_list)){
     genes_keep <- intersect(genes_keep,gene_list)
@@ -154,6 +155,17 @@ generate_plots <- function(cnt,rpkm,grp,out_path,left_line = 0.67,right_line = 1
   dev.off()
   
 }
+
+generate_plots_cis_trans <- function(cnt,rpkm,grp,out_path,left_line = 0.67,right_line = 1.5,
+                         gene_list = NULL,gene_list_name = 'all',cis_gene_list= NULL){
+  cnt_cis <- cnt[rownames(cnt)%in%cis_gene_list,]
+  cnt_trans <- cnt[!(rownames(cnt)%in%cis_gene_list),]
+  generate_plots(cnt_cis,rpkm,grp,out_path,left_line = 0.67,right_line = 1.5,
+                 gene_list = gene_list,gene_list_name = paste0('cis_',gene_list_name))
+  generate_plots(cnt_trans,rpkm,grp,out_path,left_line = 0.67,right_line = 1.5,
+                 gene_list = gene_list,gene_list_name = paste0('trans_',gene_list_name))
+}
+
 
 modify_ylab <- function(y_labs){
   for(i in 1:length(y_labs)){
