@@ -945,5 +945,15 @@ get_ratio_summary_matrix = function(ratio_summary_matrix ){
   return(Chr_ratio_summary_matrix)
 }
 
-                    
-                    
+plot_heatmap(rpkm_data,grp){
+  library(pheatmap)
+  pheatmap(log2(rpkm_data+0.0001),annotation_col = grp)
+  
+}
+
+plot_dendro <- function(rpkm_data,method = "complete"){
+  library(dendextend)
+  my_hclust <- hclust(dist(rpkm_data), method = method)
+  as.dendrogram(my_hclust) %>% 
+    plot(horiz = TRUE)
+}

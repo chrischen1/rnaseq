@@ -3,7 +3,7 @@ library(clusterProfiler)
 library(ReactomePA)
 library(pheatmap)
 
-output_path = '~/Dropbox/MU/workspace/liu_rnaseq/plots/'
+output_path = '~/Dropbox/MU/workspace/will_rnaseq/final/'
 cnt_result <- read.csv('~/Dropbox/MU/workspace/liu_rnaseq/counts.csv',as.is = T,row.names = 1)
 de_result <- read.csv('~/Dropbox/MU/workspace/liu_rnaseq/de_results.csv',as.is = T,row.names = 1)
 meta <- read.csv('~/Dropbox/MU/workspace/liu_rnaseq/meta_info.csv',as.is = T,row.names = 1)
