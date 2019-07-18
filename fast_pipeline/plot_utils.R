@@ -1,17 +1,6 @@
-library(clusterProfiler)
-library(pathview)
-library(ReactomePA)
-library(FGNet)
-library(DOSE)
-library(igraph)
-library(ggraph)
-library(reshape2)
-library(dplyr)
-library(GOplot)
-
 enrichment_dotplot <- function(enrichment_result,x = 'GeneRatio',showCategory=10,color = "p.adjust",size = 'Count',
                                split = NULL,font.size=12,title = "",orderBy = "p.adjust",
-                               colorBy = "p.adjust",decreasing=TRUE){
+                               colorBy = "p.adjust",decreasing=FALSE){
     df <- data.frame(enrichment_result@result)
     idx <- order(df[[orderBy]], decreasing = decreasing)[seq_len(showCategory)]
     df <- df[idx,]
@@ -22,7 +11,7 @@ enrichment_dotplot <- function(enrichment_result,x = 'GeneRatio',showCategory=10
 }
 
 enrichment_barplot <- function(enrichment_result, x="Count", colorBy='p.adjust',orderBy = "p.adjust", 
-                               showCategory=8, font.size=12, title="", decreasing = TRUE,color = "p.adjust",
+                               showCategory=8, font.size=12, title="", decreasing = FALSE,color = "p.adjust",
                                ...) {
     if (x == "geneRatio" || x == "GeneRatio") {
         x <- "GeneRatio"

@@ -1,3 +1,18 @@
+library(clusterProfiler)
+library(pathview)
+library(ReactomePA)
+library(FGNet)
+library(DOSE)
+library(igraph)
+library(ggraph)
+library(reshape2)
+library(dplyr)
+library(GOplot)
+library(topGO)
+library(ggfortify)
+library(pca3d)
+library(pheatmap)
+library(rgl)
 
 color_palette <- function(colors) colorRampPalette(colors)(n = 299)
 
