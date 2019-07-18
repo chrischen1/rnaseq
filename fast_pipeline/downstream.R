@@ -1,3 +1,5 @@
+source('https://raw.githubusercontent.com/chrischen1/rnaseq/master/fast_pipeline/utils.R')
+source('https://github.com/chrischen1/rnaseq/blob/master/fast_pipeline/plot_utils.R')
 library(org.Mm.eg.db)
 
 final_data_path = '~/Dropbox/MU/workspace/will_rnaseq/final/'
