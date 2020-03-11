@@ -1,5 +1,6 @@
 source('https://raw.githubusercontent.com/chrischen1/rnaseq/master/fast_pipeline/utils.R')
 source('https://raw.githubusercontent.com/chrischen1/rnaseq/master/fast_pipeline/plot_utils.R')
+source('https://raw.githubusercontent.com/chrischen1/rnaseq/master/de_rnaseq.R')
 library(org.Mm.eg.db)
 
 final_data_path = '~/Dropbox/MU/workspace/will_rnaseq/final/'
@@ -15,7 +16,6 @@ dir.create(output_path,showWarnings = F)
 dir.create(de_results_path,showWarnings = F)
 dir.create(comparisions_results_path,showWarnings = F)
 
-source('https://raw.githubusercontent.com/chrischen1/rnaseq/master/de_rnaseq.R')
 
 # Filtering
 rpkm_data1 <- rpkm_data[apply(rpkm_data, 1, function(x)(sum(x>0)))>22,]

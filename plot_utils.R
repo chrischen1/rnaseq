@@ -1,3 +1,28 @@
+plot_network <- function(weighted_el,n=100,protein_symbol=NULL){
+  library(igraph)
+  idx_slt <- order(unlist(weighted_el[,3]),decreasing = T)
+  weighted_el1 <- weighted_el[idx_slt[1:n],]
+  
+  el <- as.matrix(weighted_el1[,1:2])
+  rownames(el) <- NULL
+  colnames(el) <- NULL
+  gn1 <- graph_from_edgelist(el,directed = F)
+  if(!is.null(protein_symbol)){
+    V(gn1)$name <- protein_symbol[V(gn1)$name]
+    
+  }
+  plot(gn1, 
+       rescale=T,
+       asp=0,
+       vertex.label.cex=1, 
+       vertex.label.font=2,
+       vertex.shape="circle", 
+       vertex.size=1, 
+       vertex.color="deepskyblue2",
+       vertex.label.color="black",
+       edge.width=as.integer(cut(weighted_el1$score, breaks = 5)))
+}
+
 multiplot <- function(..., plotlist=NULL, file, cols=1, layout=NULL) {
   library(grid)
   plots <- c(list(...), plotlist)
