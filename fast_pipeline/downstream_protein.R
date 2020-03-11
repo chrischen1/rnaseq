@@ -5,7 +5,7 @@ source('https://raw.githubusercontent.com/chrischen1/rnaseq/master/de_rnaseq.R')
 library(pheatmap)
 library(WGCNA)
 library(VennDiagram)
-
+library(RColorBrewer)
 #######################process input#############
 ###the input is protein by sample matrix, the colnames of the input are uniprot ID
 library(org.Rn.eg.db)
@@ -15,6 +15,9 @@ input_file = '~/Dropbox/MU/workspace/hailong20200308/ProteinGroup_03032020.csv'
 anno_package = "org.Rn.eg.db"
 org_name = 'rat'
 kegg_org_name = 'rno'
+x_data <- rep(c(0,5,14,21),each=3)
+
+
 plot_pathway_network = F
 plot_kegg_network = F
 
@@ -55,7 +58,7 @@ for(i in names(de_result)){
 venn_list_total <- list()
 for(i in names(de_result)){
   de_i <- de_result[[i]]
-  venn_list_total[[i]] <- rownames(de_i)[de_i$FDR < 0.05]
+  venn_list_total[[i]] <- rownames(de_i)[de_i$PValue < 0.05]
 }
 venn.plot <- venn.diagram(venn_list_total,
                           paste(output_path,"Venn_total.tiff",sep = ''),
@@ -112,13 +115,13 @@ for(i in names(de_result)){
   
   # Volcano plot
   tiff(paste0(out_dir_i,'volcano_plot.tiff'))
-  plot_volcano_pval(logFC = de_slt1$logFC,P_Value = de_slt1$FDR,show_lines = F,left = 0,right = 0)
+  plot_volcano_pval(logFC = de_slt1$logFC,P_Value = de_slt1$PValue,show_lines = F,left = 0,right = 0)
   dev.off()
   
   geneList_all <- de_slt2$logFC
   names(geneList_all) <- de_slt2$ENTREZID
   
-  geneList_dup <- geneList_all[de_slt2$FDR < max(sort(de_slt2$FDR)[100],0.05)]
+  geneList_dup <- geneList_all[de_slt2$PValue < max(sort(de_slt2$PValue)[100],0.05)]
   geneList <- c()
   for(geneList_name in names(geneList_dup)){
     geneList[geneList_name] <- mean(geneList_dup[names(geneList_dup)==geneList_name])
@@ -170,7 +173,8 @@ for(i in names(de_result)){
   dir.create(gsea_path_i,showWarnings = F)
   
   for (pathway_idx in seq_len(min(10,nrow(gsea_res@result)))) {
-    g <- gseaplot(gsea_res, geneSetID = gsea_res@result$ID[pathway_idx],title = pathway_res@result$Description[pathway_idx])
+    g <- gseaplot(gsea_res, geneSetID = gsea_res@result$ID[pathway_idx],
+                  title = pathway_res@result$Description[pathway_idx])
     tiff(paste0(gsea_path_i,pathway_res@result$ID[pathway_idx],'.tiff'),width = 1920,height = 1080)
     plot(g)
     dev.off()
@@ -251,12 +255,35 @@ net <- blockwiseModules(t(cnt1), power = 6,
                        saveTOMs = F,
                        verbose = 3)
 gene_all_etz <- names(upt_all)[upt_all%in%names(net$colors)]
+myColors <- brewer.pal(length(unique(net$colors))+1,"Set1")
+
 for (i in unique(net$colors)) {
+  wgcna_results_path_i <- paste0(wgcna_results_path,'/module_',i,'/')
+  dir.create(wgcna_results_path_i,showWarnings = F)
+  
+  cnt_i <- cnt1[names(net$colors)[net$colors==i],]
+  pc_cnt_i <- prcomp(cnt_i)
+  tiff(paste0(wgcna_results_path_i,'/eigen_plot.tiff'),width = 1024,height = 768)
+  # qplot(x_data,pc_cnt_i$rotation[,1],xlab='Days',ylab='MEs(PC1)',col=i+1,pch=20)
+  
+  df <- data.frame('x'=x_data,'y'=pc_cnt_i$rotation[,1])
+  if(i>4){
+    col_i <- myColors[i+2]
+  }else{
+    col_i <- myColors[i+1]
+  }
+  
+  
+  ggplot(df, aes(x = x_data, y = pc_cnt_i$rotation[,1], colour = 1)) + geom_point(colour=col_i)+ 
+    stat_smooth( se = FALSE,colour=col_i)+ theme_bw()+ 
+    theme(legend.position = "none") + xlab('Days') +ylab('MEs(PC1)')
+
+  dev.off()
+
   gene_all_etz_i <- rep(1,length(gene_all_etz))
   names(gene_all_etz_i)  <- gene_all_etz
   
-  wgcna_results_path_i <- paste0(wgcna_results_path,'/module_',i,'/')
-  dir.create(wgcna_results_path_i,showWarnings = F)
+
   gene_list <- names(net$colors)[net$colors==i]
   gene_list_etz <- names(upt_all)[upt_all%in%gene_list]
   
