@@ -255,6 +255,7 @@ net <- blockwiseModules(t(cnt1), power = 6,randomSeed = 1,
 gene_all_etz <- names(upt_all)[upt_all%in%names(net$colors)]
 myColors <- brewer.pal(length(unique(net$colors))+1,"Set1")
 rownames(x) <- x$Original
+selection <- function(allScore){ return(allScore < 0.05)}
 
 for (i in unique(net$colors)) {
   wgcna_results_path_i <- paste0(wgcna_results_path,'/module_',i,'/')
@@ -288,48 +289,44 @@ for (i in unique(net$colors)) {
   gene_list_etz <- names(upt_all)[upt_all%in%gene_list]
   
   gene_all_etz_i[gene_list_etz] <- 0
-  go_data <- new("topGOdata",ontology="BP",allGenes= gene_all_etz_i,annot=annFUN.GO2genes,
-                 GO2genes=allGO2genes,geneSel= selection,nodeSize=10)
   
-  results.ks <- runTest(go_data, algorithm="classic", statistic="ks")
-  goEnrichment <- GenTable(go_data, KS=results.ks, orderBy="KS", topNodes=20)
-  goEnrichment <- goEnrichment[,c("GO.ID","Term","KS")]
-  goEnrichment$Term <- gsub(" [a-z]*\\.\\.\\.$", "", goEnrichment$Term)
-  goEnrichment$Term <- gsub("\\.\\.\\.$", "", goEnrichment$Term)
-  goEnrichment$Term <- paste(goEnrichment$GO.ID, goEnrichment$Term, sep=", ")
-  goEnrichment$Term <- factor(goEnrichment$Term, levels=rev(goEnrichment$Term))
-  goEnrichment$KS <- as.numeric(goEnrichment$KS)
-  goEnrichment$KS[is.na(goEnrichment$KS)] <- 1e-30
-  goEnrichment <- goEnrichment[goEnrichment$KS<0.05,]
-  
-  write.csv(goEnrichment,paste0(wgcna_results_path_i,'goEnrichment.csv'))
-  
-  
-  g <- enrichment_goplot(goEnrichment)
-  
-  tiff(paste0(wgcna_results_path_i,'enrichment_goplot.tiff'),width = 1920,height = 1080)
-  plot(g)
-  dev.off()
-  
-  tiff(paste0(wgcna_results_path_i,'go_showSigOfNodes.tiff'),width = 1920,height = 1080)
-  par(cex = 0.25)
-  showSigOfNodes(go_data, score(results.ks), firstSigNodes = 3, useInfo = 'all')
-  dev.off()
-  
-  # circus plot
-  go_res <- enrichGO(gene = gene_list_etz,OrgDb=anno_package,ont = "CC",pAdjustMethod = "BH",
-                     pvalueCutoff  = 0.01,qvalueCutoff  = 0.05)
-  go_res2 <- go_res@result
-  go_res2 <- go_res2[order(go_res2$p.adjust),]
-  go_res3 <- enrichment_parser(go_res2,gene_all_etz_i)
-  
-  eg2 <- bitr(rownames(go_res3), fromType="ENTREZID", toType="SYMBOL", OrgDb=anno_package)
-  go_res3 <- go_res3[eg2$ENTREZID,]
-  rownames(go_res3) <- eg2$SYMBOL # replace ENTREZID with gene SYMBOL
-  g_circus <- enrichment_circusplot(go_res3,space = 0.02, gene.order = 'logFC', gene.space = 0.25, gene.size = 5)
-  tiff(paste0(wgcna_results_path_i,'circus_goplot.tiff'),width = 1920,height = 1080)
-  plot(g_circus)
-  dev.off()
+  for (o in c('BP','CC')) {
+    enrich_list <- go_enrich(gene_all_etz_i,allGO2genes,annFUN.GO2genes,selection=selection,ontology="BP")
+    goEnrichment <- enrich_list[[1]]
+    results.ks <- enrich_list[[2]]
+    go_data <- enrich_list[[3]]
+    g <- enrichment_goplot(goEnrichment)
+    write.csv(goEnrichment,paste0(wgcna_results_path_i,o,'_goEnrichment.csv'))
+    
+    tiff(paste0(wgcna_results_path_i,o,'_enrichment_goplot.tiff'),width = 1920,height = 1080)
+    plot(g)
+    dev.off()
+    
+    tiff(paste0(wgcna_results_path_i,o,'_go_showSigOfNodes.tiff'),width = 1920,height = 1080)
+    showSigOfNodes(go_data, score(results.ks), firstSigNodes = 3, useInfo = 'all')
+    dev.off()
+    
+    # circus plot
+    go_res <- enrichGO(gene = gene_list_etz,OrgDb=anno_package,ont = o,pAdjustMethod = "BH",
+                       pvalueCutoff  = 0.01,qvalueCutoff  = 0.05)
+    go_res2 <- go_res@result
+    go_res2 <- go_res2[order(go_res2$p.adjust),]
+    go_res3 <- enrichment_parser(go_res2,gene_all_etz_i)
+    
+    eg2 <- bitr(rownames(go_res3), fromType="ENTREZID", toType="SYMBOL", OrgDb=anno_package)
+    go_res3 <- go_res3[eg2$ENTREZID,]
+    rownames(go_res3) <- eg2$SYMBOL # replace ENTREZID with gene SYMBOL
+    g_circus <- enrichment_circusplot(go_res3,space = 0.02, gene.order = 'logFC', gene.space = 0.25, gene.size = 5)
+    tiff(paste0(wgcna_results_path_i,o,'_circus_goplot.tiff'),width = 1920,height = 1080)
+    plot(g_circus)
+    dev.off()
+  }
+
+
+  #KEGG
+  kegg_res <- enrichKEGG(gene_all_etz,organism = kegg_org_name,
+                         keyType = 'ncbi-geneid',pAdjustMethod='BH',pvalueCutoff=0.05)
+  write.csv(kegg_res@result,paste0(wgcna_results_path_i,'KEGGEnrichment.csv'))
 }
 
 

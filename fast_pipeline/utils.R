@@ -112,5 +112,19 @@ enrichment_parser <- function(mat,logfc,idx = 1:10){
 
 selection <- function(allScore){ return(allScore < 0.05)}
 
-
-
+go_enrich <- function(gene_all_etz_i,allGO2genes,annFUN.GO2genes,selection,ontology="BP"){
+    go_data <- new("topGOdata",ontology=ontology,allGenes= gene_all_etz_i,annot=annFUN.GO2genes,
+                   GO2genes=allGO2genes,geneSel= selection,nodeSize=10)
+    
+    results.ks <- runTest(go_data, algorithm="classic", statistic="ks")
+    goEnrichment <- GenTable(go_data, KS=results.ks, orderBy="KS", topNodes=20)
+    goEnrichment <- goEnrichment[,c("GO.ID","Term","KS")]
+    goEnrichment$Term <- gsub(" [a-z]*\\.\\.\\.$", "", goEnrichment$Term)
+    goEnrichment$Term <- gsub("\\.\\.\\.$", "", goEnrichment$Term)
+    goEnrichment$Term <- paste(goEnrichment$GO.ID, goEnrichment$Term, sep=", ")
+    goEnrichment$Term <- factor(goEnrichment$Term, levels=rev(goEnrichment$Term))
+    goEnrichment$KS <- as.numeric(goEnrichment$KS)
+    goEnrichment$KS[is.na(goEnrichment$KS)] <- 1e-30
+    goEnrichment <- goEnrichment[goEnrichment$KS<0.05,]
+    return(list(goEnrichment,results.ks,go_data))
+}
