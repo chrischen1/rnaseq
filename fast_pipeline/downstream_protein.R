@@ -15,7 +15,7 @@ input_file = '~/Dropbox/MU/workspace/hailong20200308/ProteinGroup_03032020.csv'
 anno_package = "org.Rn.eg.db"
 org_name = 'rat'
 kegg_org_name = 'rno'
-x_data <- rep(c(0,5,14,21),each=3)
+x_data <- rep(log2(c(120,5,14,21)),each=3)
 
 
 plot_pathway_network = F
@@ -45,7 +45,13 @@ de_result <- edgeR_wrapper(cnt1,grp)
 protein_desc <- x$Protein.name
 protein_name <- x$entry.Name
 names(protein_desc) <- names(protein_name) <- x$Original
-  
+
+eg <- bitr(rownames(cnt1), fromType="UNIPROT", toType="ENTREZID", OrgDb=anno_package)
+upt_all <- eg$UNIPROT
+etz_all <- eg$ENTREZID
+names(upt_all) <- etz_all
+allGO2genes <- annFUN.org(whichOnto="BP", feasibleGenes=NULL, mapping=anno_package, ID="entrez")
+
 for(i in names(de_result)){
   de_i <- de_result[[i]]
   de_i <- cbind.data.frame('Protein_name'=protein_name[rownames(de_i)],
@@ -89,12 +95,6 @@ dev.off()
 
 
 # analysis for each DE pair
-eg <- bitr(rownames(cnt1), fromType="UNIPROT", toType="ENTREZID", OrgDb=anno_package)
-
-upt_all <- eg$UNIPROT
-etz_all <- eg$ENTREZID
-names(upt_all) <- etz_all
-
 for(i in names(de_result)){
   de_slt1 <- de_result[[i]]
   UNIPROT_i <- intersect(upt_all,rownames(de_slt1))
@@ -120,7 +120,6 @@ for(i in names(de_result)){
   
   geneList_all <- de_slt2$logFC
   names(geneList_all) <- de_slt2$ENTREZID
-  
   geneList_dup <- geneList_all[de_slt2$PValue < max(sort(de_slt2$PValue)[100],0.05)]
   geneList <- c()
   for(geneList_name in names(geneList_dup)){
@@ -200,7 +199,6 @@ for(i in names(de_result)){
 
   
   # GO enrichment analysis
-  allGO2genes <- annFUN.org(whichOnto="BP", feasibleGenes=NULL, mapping=anno_package, ID="entrez")
   go_data <- new("topGOdata",ontology="BP",allGenes= geneList_all,annot=annFUN.GO2genes,
                  GO2genes=allGO2genes,geneSel= selection,nodeSize=10)
   
@@ -248,7 +246,7 @@ for(i in names(de_result)){
 
 
 # run WGCNA
-net <- blockwiseModules(t(cnt1), power = 6,
+net <- blockwiseModules(t(cnt1), power = 6,randomSeed = 1,
                        TOMType = "unsigned", minModuleSize = 30,
                        reassignThreshold = 0, mergeCutHeight = 0.25,
                        numericLabels = TRUE, pamRespectsDendro = FALSE,
@@ -256,28 +254,30 @@ net <- blockwiseModules(t(cnt1), power = 6,
                        verbose = 3)
 gene_all_etz <- names(upt_all)[upt_all%in%names(net$colors)]
 myColors <- brewer.pal(length(unique(net$colors))+1,"Set1")
+rownames(x) <- x$Original
 
 for (i in unique(net$colors)) {
   wgcna_results_path_i <- paste0(wgcna_results_path,'/module_',i,'/')
   dir.create(wgcna_results_path_i,showWarnings = F)
-  
+  write.table(cbind(names(net$colors)[net$colors==i],x[names(net$colors)[net$colors==i],c('entry.Name','Protein.name')]),
+              paste0(wgcna_results_path_i,'/gene_list.txt'),row.names = F,col.names = F,quote = F)
+
   cnt_i <- cnt1[names(net$colors)[net$colors==i],]
   pc_cnt_i <- prcomp(cnt_i)
-  tiff(paste0(wgcna_results_path_i,'/eigen_plot.tiff'),width = 1024,height = 768)
-  # qplot(x_data,pc_cnt_i$rotation[,1],xlab='Days',ylab='MEs(PC1)',col=i+1,pch=20)
-  
+
   df <- data.frame('x'=x_data,'y'=pc_cnt_i$rotation[,1])
+  write.csv(df,paste0(wgcna_results_path_i,'/eigen_data.csv'))
   if(i>4){
     col_i <- myColors[i+2]
   }else{
     col_i <- myColors[i+1]
   }
-  
-  
-  ggplot(df, aes(x = x_data, y = pc_cnt_i$rotation[,1], colour = 1)) + geom_point(colour=col_i)+ 
+  g_i <- ggplot(df, aes(x = x_data, y = pc_cnt_i$rotation[,1], colour = 1)) + geom_point(colour=col_i)+ 
     stat_smooth( se = FALSE,colour=col_i)+ theme_bw()+ 
-    theme(legend.position = "none") + xlab('Days') +ylab('MEs(PC1)')
-
+    theme(legend.position = "none") + xlab('log2 Days') +ylab('MEs(PC1)')
+  
+  tiff(paste0(wgcna_results_path_i,'/eigen_plot.tiff'),width = 1024,height = 768)
+  plot(g_i)
   dev.off()
 
   gene_all_etz_i <- rep(1,length(gene_all_etz))
@@ -321,7 +321,7 @@ for (i in unique(net$colors)) {
                      pvalueCutoff  = 0.01,qvalueCutoff  = 0.05)
   go_res2 <- go_res@result
   go_res2 <- go_res2[order(go_res2$p.adjust),]
-  go_res3 <- enrichment_parser(go_res2,geneList_all)
+  go_res3 <- enrichment_parser(go_res2,gene_all_etz_i)
   
   eg2 <- bitr(rownames(go_res3), fromType="ENTREZID", toType="SYMBOL", OrgDb=anno_package)
   go_res3 <- go_res3[eg2$ENTREZID,]

@@ -1,4 +1,5 @@
-plot_network <- function(weighted_el,n=100,protein_symbol=NULL){
+plot_network <- function(weighted_el,n=100,protein_symbol=NULL,vertex.label.cex=2,
+                         vertex.label.font=2,vertex.size=1){
     library(igraph)
     idx_slt <- order(unlist(weighted_el[,3]),decreasing = T)
     weighted_el1 <- weighted_el[idx_slt[1:n],]
@@ -14,10 +15,10 @@ plot_network <- function(weighted_el,n=100,protein_symbol=NULL){
     plot(gn1, 
          rescale=T,
          asp=0,
-         vertex.label.cex=1, 
-         vertex.label.font=2,
+         vertex.label.cex=vertex.label.cex, 
+         vertex.label.font=vertex.label.font,
          vertex.shape="circle", 
-         vertex.size=1, 
+         vertex.size=vertex.size, 
          vertex.color="deepskyblue2",
          vertex.label.color="black",
          edge.width=as.integer(cut(weighted_el1$score, breaks = 5)))
