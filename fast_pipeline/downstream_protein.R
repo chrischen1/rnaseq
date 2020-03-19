@@ -20,6 +20,7 @@ x_data <- rep(log2(c(120,5,14,21)),each=3)
 
 plot_pathway_network = F
 plot_kegg_network = F
+top_go_num = 20
 
 x <- read.csv(input_file,as.is = T)
 sample_names <- gsub('.','_',colnames(x)[8:ncol(x)],fixed = T)
@@ -52,6 +53,8 @@ etz_all <- eg$ENTREZID
 names(upt_all) <- etz_all
 allGO2genes <- annFUN.org(whichOnto="BP", feasibleGenes=NULL, mapping=anno_package, ID="entrez")
 
+
+#####################################################################
 for(i in names(de_result)){
   de_i <- de_result[[i]]
   de_i <- cbind.data.frame('Protein_name'=protein_name[rownames(de_i)],
@@ -112,12 +115,6 @@ for(i in names(de_result)){
     }
     
   }
-  
-  # Volcano plot
-  tiff(paste0(out_dir_i,'volcano_plot.tiff'))
-  plot_volcano_pval(logFC = de_slt1$logFC,P_Value = de_slt1$PValue,show_lines = F,left = 0,right = 0)
-  dev.off()
-  
   geneList_all <- de_slt2$logFC
   names(geneList_all) <- de_slt2$ENTREZID
   geneList_dup <- geneList_all[de_slt2$PValue < max(sort(de_slt2$PValue)[100],0.05)]
@@ -127,26 +124,33 @@ for(i in names(de_result)){
   }
   geneList <- sort(geneList,decreasing = T)
   
+  # Volcano plot
+  tiff(paste0(out_dir_i,'volcano_plot.tiff'))
+  plot_volcano_pval(logFC = de_slt1$logFC,P_Value = de_slt1$PValue,show_lines = F,left = 0,right = 0)
+  dev.off()
+  
+
+  
   # Pathway Enrichment Analysis
   pathway_res <- enrichPathway(gene = names(geneList),organism = org_name,
                                pvalueCutoff=0.05,qvalueCutoff = 0.05, readable=T)
   write.csv(pathway_res@result,paste0(out_dir_i,'pathwayEnrichment.csv'))
   
-  tiff(paste0(out_dir_i,'enrichment_barplot.tiff'),width = 1920,height = 1080)
-  enrichment_barplot(pathway_res, showCategory=20,colorBy = 'p.adjust',orderBy = 'p.adjust',color='p.adjust')
-  dev.off()
-  
-  tiff(paste0(out_dir_i,'enrichment_dotplot.tiff'),width = 1920,height = 1080)
-  enrichment_dotplot(pathway_res, showCategory=20,colorBy = 'p.adjust',orderBy = 'p.adjust',color='p.adjust')
-  dev.off()
-  
-  tiff(paste0(out_dir_i,'enrichment_emapplot.tiff'),width = 1920,height = 1080)
-  enrichment_emapplot(pathway_res, showCategory=30)
-  dev.off()
-  
-  tiff(paste0(out_dir_i,'enrichment_cnetplot.tiff'),width = 1920,height = 1080)
-  enrichment_cnetplot(pathway_res, categorySize="pvalue", foldChange=geneList)
-  dev.off()
+  # tiff(paste0(out_dir_i,'enrichment_barplot.tiff'),width = 1920,height = 1080)
+  # enrichment_barplot(pathway_res, showCategory=20,colorBy = 'p.adjust',orderBy = 'p.adjust',color='p.adjust')
+  # dev.off()
+  # 
+  # tiff(paste0(out_dir_i,'enrichment_dotplot.tiff'),width = 1920,height = 1080)
+  # enrichment_dotplot(pathway_res, showCategory=20,colorBy = 'p.adjust',orderBy = 'p.adjust',color='p.adjust')
+  # dev.off()
+  # 
+  # tiff(paste0(out_dir_i,'enrichment_emapplot.tiff'),width = 1920,height = 1080)
+  # enrichment_emapplot(pathway_res, showCategory=30)
+  # dev.off()
+  # 
+  # tiff(paste0(out_dir_i,'enrichment_cnetplot.tiff'),width = 1920,height = 1080)
+  # enrichment_cnetplot(pathway_res, categorySize="pvalue", foldChange=geneList)
+  # dev.off()
   
 
   if (plot_pathway_network){
@@ -199,20 +203,13 @@ for(i in names(de_result)){
 
   
   # GO enrichment analysis
-  go_data <- new("topGOdata",ontology="BP",allGenes= geneList_all,annot=annFUN.GO2genes,
-                 GO2genes=allGO2genes,geneSel= selection,nodeSize=10)
   
-  results.ks <- runTest(go_data, algorithm="classic", statistic="ks")
-  goEnrichment <- GenTable(go_data, KS=results.ks, orderBy="KS", topNodes=20)
-  goEnrichment <- goEnrichment[,c("GO.ID","Term","KS")]
-  goEnrichment$Term <- gsub(" [a-z]*\\.\\.\\.$", "", goEnrichment$Term)
-  goEnrichment$Term <- gsub("\\.\\.\\.$", "", goEnrichment$Term)
-  goEnrichment$Term <- paste(goEnrichment$GO.ID, goEnrichment$Term, sep=", ")
-  goEnrichment$Term <- factor(goEnrichment$Term, levels=rev(goEnrichment$Term))
-  goEnrichment$KS <- as.numeric(goEnrichment$KS)
-  goEnrichment$KS[is.na(goEnrichment$KS)] <- 1e-30
-  goEnrichment <- goEnrichment[goEnrichment$KS<0.05,]
-  write.csv(goEnrichment,paste0(out_dir_i,'goEnrichment.csv'))
+  enrich_list <- go_enrich(geneList_all,allGO2genes,annFUN.GO2genes,selection=selection,ontology="BP",topNodes = top_go_num)
+  goEnrichment <- enrich_list[[1]]
+  results.ks <- enrich_list[[2]]
+  go_data <- enrich_list[[3]]
+  g <- enrichment_goplot(goEnrichment)
+  write.csv(goEnrichment[goEnrichment$KS<0.05,],paste0(out_dir_i,'BP_goEnrichment.csv'))
   
   go_path_i <- paste0(out_dir_i,'/GO/')
   dir.create(go_path_i,showWarnings = F)
@@ -227,12 +224,16 @@ for(i in names(de_result)){
   showSigOfNodes(go_data, score(results.ks), firstSigNodes = 3, useInfo = 'all')
   dev.off()
   
+  
   # circus plot
   go_res <- enrichGO(gene = names(geneList),OrgDb=anno_package,ont = "CC",pAdjustMethod = "BH",
                      pvalueCutoff  = 0.01,qvalueCutoff  = 0.05)
   go_res2 <- go_res@result
   go_res2 <- go_res2[order(go_res2$p.adjust),]
   go_res3 <- enrichment_parser(go_res2,geneList_all)
+  
+  write.csv(go_res2[order(go_res2$pvalue)[1:min(top_go_num,sum(go_res2$pvalue<0.05))],c(1,2,5)],
+            paste0(out_dir_i,'CC_goEnrichment.csv'))
   
   eg2 <- bitr(rownames(go_res3), fromType="ENTREZID", toType="SYMBOL", OrgDb=anno_package)
   go_res3 <- go_res3[eg2$ENTREZID,]
@@ -302,7 +303,9 @@ for (i in unique(net$colors)) {
     plot(g)
     dev.off()
     
+    
     tiff(paste0(wgcna_results_path_i,o,'_go_showSigOfNodes.tiff'),width = 1920,height = 1080)
+    par(cex = 0.01)
     showSigOfNodes(go_data, score(results.ks), firstSigNodes = 3, useInfo = 'all')
     dev.off()
     
