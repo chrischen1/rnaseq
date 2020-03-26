@@ -292,22 +292,7 @@ for (i in unique(net$colors)) {
   gene_all_etz_i[gene_list_etz] <- 0
   
   for (o in c('BP','CC')) {
-    enrich_list <- go_enrich(gene_all_etz_i,allGO2genes,annFUN.GO2genes,selection=selection,ontology="BP")
-    goEnrichment <- enrich_list[[1]]
-    results.ks <- enrich_list[[2]]
-    go_data <- enrich_list[[3]]
-    g <- enrichment_goplot(goEnrichment)
-    write.csv(goEnrichment,paste0(wgcna_results_path_i,o,'_goEnrichment.csv'))
     
-    tiff(paste0(wgcna_results_path_i,o,'_enrichment_goplot.tiff'),width = 1920,height = 1080)
-    plot(g)
-    dev.off()
-    
-    
-    tiff(paste0(wgcna_results_path_i,o,'_go_showSigOfNodes.tiff'),width = 1920,height = 1080)
-    par(cex = 0.01)
-    showSigOfNodes(go_data, score(results.ks), firstSigNodes = 3, useInfo = 'all')
-    dev.off()
     
     # circus plot
     go_res <- enrichGO(gene = gene_list_etz,OrgDb=anno_package,ont = o,pAdjustMethod = "BH",
@@ -315,6 +300,8 @@ for (i in unique(net$colors)) {
     go_res2 <- go_res@result
     go_res2 <- go_res2[order(go_res2$p.adjust),]
     go_res3 <- enrichment_parser(go_res2,gene_all_etz_i)
+    go_res4 <- go_res2[1:min(top_go_num,sum(go_res2$pvalue<0.05)),c('ID','Description','pvalue')]
+    write.csv(go_res4,paste0(wgcna_results_path_i,o,'_goEnrichment.csv'))
     
     eg2 <- bitr(rownames(go_res3), fromType="ENTREZID", toType="SYMBOL", OrgDb=anno_package)
     go_res3 <- go_res3[eg2$ENTREZID,]
@@ -322,6 +309,12 @@ for (i in unique(net$colors)) {
     g_circus <- enrichment_circusplot(go_res3,space = 0.02, gene.order = 'logFC', gene.space = 0.25, gene.size = 5)
     tiff(paste0(wgcna_results_path_i,o,'_circus_goplot.tiff'),width = 1920,height = 1080)
     plot(g_circus)
+    dev.off()
+    
+    tiff(paste0(wgcna_results_path_i,o,'_enrichplot.tiff'),width = 1024,height = 768)
+    df <- data.frame('Name'=paste0(go_res4$ID,' ',go_res4$Description),'negative_log2Pvalue'=-log2(go_res4$pvalue))
+    p <- ggplot(data=df, aes(x=Name, y=negative_log2Pvalue)) + geom_bar(stat="identity")+coord_flip()
+    plot(p)
     dev.off()
   }
 
